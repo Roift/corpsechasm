@@ -1,0 +1,68 @@
+</head>
+<body>
+<div id="my_text" > <h1>Hello shrek</h1></div>
+
+    <img id="my_img" src=""/>
+
+<div id="my_options"></div>
+<script>
+
+var current_state = 'start';
+
+function visit_state(state_name){
+
+    if( our_game_data[current_state]['text'] != null){
+        $('#my_text').html(data[current_state]['text']);
+        $('#my_text').show();
+    } else {
+        $('#my_text').html('');
+        $('my_text').hide();
+    }
+
+    if( our_game_data[current_state]['img'] != null){
+        $('#my_img').attr("src",our_game_data[current_state]['img']);
+        $('#my_img').show();
+
+    } else {
+        $('my_img').hide();
+    }
+
+    if( our_game_data[current_state]['sound'] != null){
+        var audio = new Audio('')
+        audio.play();
+
+    } else {
+        $('my_sound').hide();
+    }
+
+
+    if( our_game_data[current_state]['next_state'] != null){
+        options = our_game_data[current_state]['next_state']
+        options_len = options.length
+        build_html
+        for ( i = 0; i < options_len; i++){
+            build_html = build_html + "<button onclick='alert(";
+            build_html = build_html + '"' + options[i]['next_state'] + '"' + ")'";
+            build_html = build_html + ">" + options[i]['text'];
+            build_html = build_html + "</button> <br>\n";
+        }
+        console.log(build_html)
+        $('#my_options').html(build_html);
+    }
+    console.log(our_game_data[current_state]['next_state'])
+}
+
+$(document).ready(function() {
+                setTimeout(function(){
+
+                    $.getJSON("game_def.json", function( data ) {
+                        our_game_data = data;
+                        visit_state()
+                    });
+                }, 1000);
+
+            });
+
+</script>
+
+</body>

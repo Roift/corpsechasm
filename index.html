@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CORPSE CHASM</title>
+    <link rel="icon" type="image/png" href="/imgs/favicon.png"/>
+    <script src="https://code.jquery.com/jquery-3.7.1.js"
+        integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <style>
+        body {
+            background-color: black;
+            color: white;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 20px;
+        }
+
+        #my_text,
+        #my_options {
+            white-space: pre-wrap;
+        }
+
+        button {
+            background-color: black;
+            color: white;
+            font-family: 'Courier New', 'Courier New', Courier, monospace;
+            border: 0px;
+            padding: 5px 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            text-decoration: underline;
+            text-align: left;
+            display: block;
+        }
+
+        button:hover {
+            background-color: red;
+        }
+
+        .ascii-art {
+            color: rgb(130, 0, 0);
+            font-family: 'Courier New', Courier, monospace;
+            white-space: pre;
+        }
+
+        #skip-instruction {
+            position: absolute;
+            bottom: 10px;
+            right: 20px;
+            color: gray;
+            font-size: 0.8em;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="my_text">
+        <h1>Loading...</h1>
+    </div>
+
+    <img id="my_img" src="" />
+
+    <div id="my_options"></div>
+
+    <div id="player_stats"
+        style="position: absolute; top: 20px; right: 20px; background-color: rgba(0, 0, 0, 0.7); padding: 10px; border: 1px solid white; color: white; font-family: 'Courier New', Courier, monospace;">
+        <div id="stats_content"></div>
+    </div>
+
+    <div id="skip-instruction">Press Enter to skip</div>
+
+    <script>
+        var current_state = 'start';
+        var our_game_data = null;
+        var bk_audio = new Audio();
+        let typingInterval;
+
+        const player = {
+            name: "Kargunt",
+            health: 15,
+            maxHealth: 15,
+            silver: 15 + rollD6(),
+            weapon: { name: "Beinrýtingur", attack: rollD4() + 1 },
+            armor: null,
+            xp: 0,
+            points: 0,
+            items: [],
+            scrolls: []
+        };
+
+        function updateStats() {
+            const statsContent = `
+            <strong>Name:</strong> ${player.name}<br>
+            <strong>HP:</strong> ${player.health}/15<br>
+            <strong>Silver:</strong> ${player.silver}<br>
+            <strong>Weapon:</strong> ${player.weapon.name} (Attack: ${player.weapon.attack})<br>
+            <strong>Armor:</strong> ${player.armor ? player.armor : 'None'}<br>
+            <strong>XP:</strong> ${player.xp}<br>
+            <strong>Points:</strong> ${player.points}<br>
+            <strong>Items:</strong> ${player.items.length}/3<br>
+            <strong>Scrolls:</strong> ${player.scrolls.length}/3`;
+            $('#stats_content').html(statsContent);
+        }
+
+        function scanText(element, text, speed) {
+            let lines = text.split("\n");
+            let i = 0;
+
+            function scan() {
+                if (i < lines.length) {
+                    element.append(lines[i] + "<br>");
+                    i++;
+                    setTimeout(scan, speed);
+                }
+            }
+
+            scan();
+        }
+
+        function rollD4() {
+            return Math.floor(Math.random() * 4) + 1; // Rolls a d4
+        }
+
+        function rollD6() {
+            return Math.floor(Math.random() * 6) + 1; // Rolls a d6
+        }
+
+        function typeText(element, text, speed, callback = null) {
+            element.html('');
+            $('#skip-instruction').show();
+            let i = 0;
+            let typing = true;
+
+            const handleKeyDown = (event) => {
+                if (event.key === 'Enter' && typing) {
+                    clearTimeout(typingInterval);
+                    element.html(text);
+                    typing = false;
+                    $('#skip-instruction').hide();
+                    document.removeEventListener('keydown', handleKeyDown);
+                    callback && callback();
+                }
+            };
+
+            document.addEventListener('keydown', handleKeyDown);
+
+            const type = () => {
+                if (i < text.length) {
+                    element.append(text[i++]);
+                    typingInterval = setTimeout(type, speed);
+                } else {
+                    typing = false;
+                    $('#skip-instruction').hide();
+                    document.removeEventListener('keydown', handleKeyDown);
+                    callback && callback();
+                }
+            };
+            type();
+        }
+
+        function clearText() {
+            $('#my_text').html('');
+            clearTimeout(typingInterval);
+            typingInterval = null;
+        }
+
+        function renderOptions(options) {
+            if (options) {
+                let build_html = '';
+                options.forEach(function (option) {
+                    build_html += "<button onclick='current_state = \"" + option['next_state'] + "\"; visit_state();'>";
+                    build_html += option['text'] + "</button><br>\n";
+                });
+                $('#my_options').html(build_html);
+            }
+        }
+
+        function visit_state() {
+            let textElement = $('#my_text');
+            clearText();
+
+            if (our_game_data[current_state]['text'] != null) {
+                let stateText = our_game_data[current_state]['text'];
+                if (stateText) {
+                    stateText = stateText.replace(/<[^>]*>/g, '');
+                    let typingSpeed = 50;
+                    typeText(textElement, stateText, typingSpeed, function () {
+                        showAsciiArt();
+                    });
+                } else {
+                    textElement.hide();
+                }
+            }
+
+            if (current_state === 'GetWeap') {
+                player.weapon = { name: 'Beinrýtingur', attack: 'D4 + 1' };
+                updateStats();
+            }
+
+            if (our_game_data[current_state]['img'] != null) {
+                $("#my_img").attr("src", our_game_data[current_state]['img']);
+                $('#my_img').show();
+            } else {
+                $('#my_img').hide();
+            }
+
+            const newBackSound = our_game_data[current_state]['back_sound'];
+            if (newBackSound) {
+                if (bk_audio.src !== newBackSound) {
+                    bk_audio.src = newBackSound;
+                    bk_audio.loop = true;
+                    bk_audio.play();
+                }
+            }
+
+            let options = our_game_data[current_state]['next_state'];
+            renderOptions(options);
+        }
+
+        $(document).ready(function () {
+            setTimeout(function () {
+                $.getJSON("game_def.json", function (data) {
+                    our_game_data = data;
+                    visit_state();
+                });
+            }, 1000);
+        });
+
+        function showAsciiArt() {
+            if (our_game_data[current_state]['ascii-art'] != null) {
+                let asciiElement = $('<div class="ascii-art"></div>');
+                $('#my_text').append(asciiElement);
+                let asciiArt = our_game_data[current_state]['ascii-art'];
+                let scanningSpeed = 200;
+                scanText(asciiElement, asciiArt, scanningSpeed);
+            }
+        }
+    </script>
+
+</body>
+
+</html>

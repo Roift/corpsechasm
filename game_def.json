@@ -1,0 +1,165 @@
+{
+    "start": {
+        "next_state": [
+            {
+                "type": "button",
+                "back_sound": "",
+                "text": "Begin",
+                "next_state": "intro",
+                "input": "Y"
+            }
+        ]
+    },
+    "intro": {
+        "back_sound": "/sounds/bkground.mp3",
+        "text": "<h1>Wind billows from the tracheal caverns to the East. Rot rides it, and the stench of blood fills your nostrils.\nThe assault on your senses pulls you out of slumber. Your neurons flood with epinephrine. Panic.\nYou are not supposed to be here. This place is for the heretics, the doomsayers, the criminals and degenerates.\nYou must escape. Escape, before all is drowned in welcome silence.\nEscape, before your life is locked and failing within a...\n\n</h1>",
+        "ascii-art": " ▄████▄   ▒█████   ██▀███   ██▓███    ██████ ▓█████ \n▒██▀ ▀█  ▒██▒  ██▒▓██ ▒ ██▒▓██░  ██▒▒██    ▒ ▓█   ▀ \n▒▓█    ▄ ▒██░  ██▒▓██ ░▄█ ▒▓██░ ██▓▒░ ▓██▄   ▒███   \n▒▓▓▄ ▄██▒▒██   ██░▒██▀▀█▄  ▒██▄█▓▒ ▒  ▒   ██▒▒▓█  ▄ \n▒ ▓███▀ ░░ ████▓▒░░██▓ ▒██▒▒██▒ ░  ░▒██████▒▒░▒████▒\n░ ░▒ ▒  ░░ ▒░▒░▒░ ░ ▒▓ ░▒▓░▒▓▒░ ░  ░▒ ▒▓▒ ▒ ░░░ ▒░ ░\n  ░  ▒     ░ ▒ ▒░   ░▒ ░ ▒░░▒ ░     ░ ░▒  ░ ░ ░ ░  ░\n░        ░ ░ ░ ▒    ░░   ░ ░░       ░  ░  ░     ░   \n░ ░          ░ ░     ░                    ░     ░  ░\n░                                                   \n ▄████▄   ██░ ██  ▄▄▄        ██████  ███▄ ▄███▓     \n▒██▀ ▀█  ▓██░ ██▒▒████▄    ▒██    ▒ ▓██▒▀█▀ ██▒     \n▒▓█    ▄ ▒██▀▀██░▒██  ▀█▄  ░ ▓██▄   ▓██    ▓██░     \n▒▓▓▄ ▄██▒░▓█ ░██ ░██▄▄▄▄██   ▒   ██▒▒██    ▒██      \n▒ ▓███▀ ░░▓█▒░██▓ ▓█   ▓██▒▒██████▒▒▒██▒   ░██▒     \n░ ░▒ ▒  ░ ▒ ░░▒░▒ ▒▒   ▓▒█░▒ ▒▓▒ ▒ ░░ ▒░   ░  ░     \n  ░  ▒    ▒ ░▒░ ░  ▒   ▒▒ ░░ ░▒  ░ ░░  ░      ░     \n░         ░  ░░ ░  ░   ▒   ░  ░  ░  ░      ░        \n░ ░       ░  ░  ░      ░  ░      ░         ░        \n░                                                  \n",
+        "next_state": [
+            {
+                "type": "button",
+                "text": "Get Up",
+                "next_state": "gstart",
+                "input": "Y"
+            }
+        ]
+    },
+    "gstart": {
+        "text": "Your name is Kargunt. You awaken from a deep, drugged slumber within a horribly humid, oozing cavern.\nThe walls are the texture of tanning leather, the ground squelches beneath your feet.\nBioluminescence brightens the chamber, flooding from tranluscent webbing in the ceiling.",
+        "next_state": [
+            {
+                "type": "button",
+                "text": "Search  for weapon",
+                "next_state": "GetWeap",
+                "input": "Y"
+            },
+            {
+                "text": "Accept your fate",
+                "next_state": "GiveUp",
+                "input": "X"
+            }
+        ]
+    },
+    "GetWeap": {
+        "text": "Instinct compels you to search for a weapon.\nLodged within the wall of the cavern lies a shard of osseous matter.\nYou grip the bone and wrench it free, blood oozing from the hole you've left in its place.\n\n<span style='color:green;'>[+1 Beinrýtingur]</span>",
+        "next_state": [
+            {
+                "text": "Look around",
+                "next_state": "Advance",
+                "input": "Y"
+            }
+        ]
+    },
+    "GiveUp": {
+        "text": "If someone went through all the effort to drug and drag you down here, then surely you must have done something to deserve it.\nYou close your eyes and quietly accept your fate.\nWarmth surrounds you, your flesh becoming one with the chasm.\nYou have been consumed.",
+        "ascii-art": "\n\n ▄████  ▄▄▄       ███▄ ▄███▓▓█████     ▒█████   ██▒   █▓▓█████  ██▀███  \n ██▒ ▀█▒▒████▄    ▓██▒▀█▀ ██▒▓█   ▀    ▒██▒  ██▒▓██░   █▒▓█   ▀ ▓██ ▒ ██▒\n▒██░▄▄▄░▒██  ▀█▄  ▓██    ▓██░▒███      ▒██░  ██▒ ▓██  █▒░▒███   ▓██ ░▄█ ▒\n░▓█  ██▓░██▄▄▄▄██ ▒██    ▒██ ▒▓█  ▄    ▒██   ██░  ▒██ █░░▒▓█  ▄ ▒██▀▀█▄  \n░▒▓███▀▒ ▓█   ▓██▒▒██▒   ░██▒░▒████▒   ░ ████▓▒░   ▒▀█░  ░▒████▒░██▓ ▒██▒\n░▒   ▒  ▒▒   ▓▒█░░ ▒░   ░  ░░░ ▒░ ░   ░ ▒░▒░▒░    ░ ▐░  ░░ ▒░ ░░ ▒▓ ░▒▓░\n░   ░   ▒   ▒▒ ░░  ░      ░ ░ ░  ░     ░ ▒ ▒░    ░ ░░   ░ ░  ░  ░▒ ░ ▒░\n░ ░   ░   ░   ▒   ░      ░      ░      ░ ░ ░ ▒       ░░     ░     ░░   ░ \n       ░       ░  ░       ░      ░  ░       ░ ░        ░     ░  ░   ░     \n                                                     ░                   \n",
+        "next_state": [
+            {
+                "text": "Play Again.",
+                "next_state": "start",
+                "input": "Y"
+            }
+        ]
+    },
+    "Advance": {
+        "text": "You survey the fleshy chamber. There are three passageways.\nA narrow crawlspace to the North, a wide but dark opening to the West, \nand an illuminated, windy corridor to the East.\nWhich passage do you take?",
+        "next_state": [
+            {
+                "type": "button",
+                "text": "North",
+                "next_state": "GenerateRoom",
+                "input": "N"
+            },
+            {
+                "text": "East",
+                "next_state": "GenerateRoom",
+                "input": "E"
+            },
+            {
+                "text": "West",
+                "next_state": "GenerateRoom",
+                "input": "W"
+            }
+        ]
+    },
+    "GenerateRoom":{
+        "text": "You enter {{roomDesc}}",
+        "next_state": {
+            "type": "button",
+            "text": "Proceed",
+            "next_state": "HandleEvent",
+            "input": "Y"
+        }
+
+    },
+    "rooms": {
+        "Cavern": {
+            "id": 1,
+            "roomDesc": "a damp and dark cavern of flesh, echoing with the sounds of dripping fluid."
+        },
+        "Corridor": {
+            "id": 2,
+            "roomDesc": "a dry and brown corridor lined with yellowish polyps."
+        },
+        "Triangular": {
+            "id": 3,
+            "roomDesc": "an unsettling, perfectly triangular room. The flesh here has calcified and crystallized."
+        }
+    },
+    "events": {
+        "Nothing": {
+            "id": 1,
+            "description": "The room is eerily quiet and desolate, nothing stirs."
+        },
+        "PitTrap": {
+            "id": 2,
+            "description": "You hear a click. The ground beneath you gives way as a pit trap opens up."
+        },
+        "Soothsayer": {
+            "id": 3,
+            "description": "A robed figure materializes out of the shadows. 'I can see your fate,' they whisper."
+        },
+        "WeakMonster": {
+            "id": 4,
+            "description": "A weak monster approaches, its grotesque form hunched and staggering towards you."
+        },
+        "ToughMonster": {
+            "id": 5,
+            "description": "A tough monster emerges, its flesh twisted and muscular."
+        },
+        "Merchant": {
+            "id": 6,
+            "description": "A figure wearing a hooded cloak gestures for you to approach. 'Care to trade?' they ask."
+        }
+    },
+
+    "items": {
+        "weapons": {
+            "Beinrýtingur": {
+                "attack": "d4 + 1",
+                "description": "A sharp dagger of bone ripped from the chasm."
+            },
+            "Crowblade":{
+                "attack": "d6",
+                "description": "The long talon that extends up the forearm of Crowmeat."
+            }
+        }
+    },
+    "enemies": {
+        "weak_monster": {
+            "id": 1,
+            "name": "Blood-Drenched Skeleton",
+            "health": 6,
+            "attack": "d4",
+            "points": 3,
+            "description": "A raised skeleton whose bones are entirely covered in bright, sticky, red blood."
+        },
+        "tough_monster": {
+            "id": 2,
+            "name": "Crowmeat",
+            "health": 8,
+            "attack": "d6",
+            "points": 5,
+            "description": "A grotesque abomination, with shiny pink flesh and a malnourished humanoid frame. Its head is a poor facsimile of a raven."
+        }
+    }
+}
