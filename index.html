@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CORPSE CHASM</title>
-    <link rel="icon" type="image/png" href="/imgs/favicon.png"/>
+    <link rel="icon" type="image/png" href="/imgs/favicon.png" />
     <script src="https://code.jquery.com/jquery-3.7.1.js"
         integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
     <style>
@@ -119,14 +119,6 @@
             scan();
         }
 
-        function rollD4() {
-            return Math.floor(Math.random() * 4) + 1; // Rolls a d4
-        }
-
-        function rollD6() {
-            return Math.floor(Math.random() * 6) + 1; // Rolls a d6
-        }
-
         function typeText(element, text, speed, callback = null) {
             element.html('');
             $('#skip-instruction').show();
@@ -177,9 +169,51 @@
             }
         }
 
+        function rollD4() {
+            return Math.floor(Math.random() * 4) + 1; // Rolls a d4
+        }
+
+        function rollD6() {
+            return Math.floor(Math.random() * 6) + 1; // Rolls a d6
+        }
+
+        function generateRoom() {
+            const roomsPool = our_game_data.pools.rooms;
+            const eventsPool = our_game_data.pools.events;
+
+            const randomRoom = roomsPool[Math.floor(Math.random() * roomsPool.length)];
+            const randomEvent = eventsPool[Math.floor(Math.random() * eventsPool.length)];
+
+            const roomDescription = randomRoom.description;
+            const eventDescription = randomEvent.description;
+
+            // Set the current state to HandleEvent after generating the room and event
+            current_state = 'HandleEvent';
+
+            our_game_data['HandleEvent']['text'] = eventDescription;
+
+            // Update the text to display the room and event
+            const fullDescription = `You enter ${roomDescription}\n\n${eventDescription}`;
+            typeText($('#my_text'), fullDescription, 50, function () {
+                $('#my_options').html("<button onclick='proceedToEvent()'>Proceed</button>");
+            });
+        }
+
+        function proceedToEvent() {
+            current_state = 'Advance';
+            visit_state();
+        }
+
         function visit_state() {
             let textElement = $('#my_text');
             clearText();
+
+            if (current_state === 'GenerateRoom') {
+                generateRoom();
+                let options = our_game_data[current_state]['next_state'];
+                renderOptions(options);
+                return; // Exit early, as we've already handled the room generation
+            }
 
             if (our_game_data[current_state]['text'] != null) {
                 let stateText = our_game_data[current_state]['text'];

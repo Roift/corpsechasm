@@ -61,7 +61,7 @@
         ]
     },
     "Advance": {
-        "text": "You survey the fleshy chamber. There are three passageways.\nA narrow crawlspace to the North, a wide but dark opening to the West, \nand an illuminated, windy corridor to the East.\nWhich passage do you take?",
+        "text": "You survey the fleshy chamber. There are three passageways.\nA narrow crawlspace to the North, a wide but dark opening to the West, \nand an illuminated, windy corridor to the East.\nWhich passage sings to you?",
         "next_state": [
             {
                 "type": "button",
@@ -81,64 +81,95 @@
             }
         ]
     },
-    "GenerateRoom":{
-        "text": "You enter {{roomDesc}}",
+    "GenerateRoom": {
+        "text": "You enter ",
         "next_state": {
             "type": "button",
             "text": "Proceed",
             "next_state": "HandleEvent",
             "input": "Y"
         }
-
     },
-    "rooms": {
-        "Cavern": {
-            "id": 1,
-            "roomDesc": "a damp and dark cavern of flesh, echoing with the sounds of dripping fluid."
-        },
-        "Corridor": {
-            "id": 2,
-            "roomDesc": "a dry and brown corridor lined with yellowish polyps."
-        },
-        "Triangular": {
-            "id": 3,
-            "roomDesc": "an unsettling, perfectly triangular room. The flesh here has calcified and crystallized."
-        }
+    "HandleEvent": {
+        "text": "{{eventDesc}}",
+        "next_state": [
+            {
+                "type": "button",
+                "text": "Proceed",
+                "next_state": "Advance",
+                "input": "Y"
+            }
+        ]
     },
-    "events": {
-        "Nothing": {
-            "id": 1,
-            "description": "The room is eerily quiet and desolate, nothing stirs."
-        },
-        "PitTrap": {
-            "id": 2,
-            "description": "You hear a click. The ground beneath you gives way as a pit trap opens up."
-        },
-        "Soothsayer": {
-            "id": 3,
-            "description": "A robed figure materializes out of the shadows. 'I can see your fate,' they whisper."
-        },
-        "WeakMonster": {
-            "id": 4,
-            "description": "A weak monster approaches, its grotesque form hunched and staggering towards you."
-        },
-        "ToughMonster": {
-            "id": 5,
-            "description": "A tough monster emerges, its flesh twisted and muscular."
-        },
-        "Merchant": {
-            "id": 6,
-            "description": "A figure wearing a hooded cloak gestures for you to approach. 'Care to trade?' they ask."
-        }
+    "pools": {
+        "rooms": [
+            {
+                "name": "Cavern",
+                "description": "a damp and dark cavern of flesh, echoing with the sounds of dripping fluid."
+            },
+            {
+                "name": "Corridor",
+                "description": "a dry and brown corridor lined with yellowish polyps."
+            },
+            {
+                "name": "Triangular",
+                "description": "an unsettling, perfectly triangular room. The flesh here has calcified and crystallized."
+            },
+            {
+                "name": "Gore Pit",
+                "description": "a pit filled with congealed blood and twisted remains, where the air is thick with the stench of decay."
+            },
+            {
+                "name": "Skeletal Antechamber",
+                "description": "an antechamber adorned with shattered bones and desiccated remnants, its walls pulsating with a sickly glow."
+            },
+            {
+                "name": "Chamber of Whispers",
+                "description": "a chamber where the walls seem to breathe, whispering secrets in a chorus of unsettling, infantile murmurs."
+            },
+            {
+                "name": "Fleshy Vault",
+                "description": "a vault that pulsates in rhythm, its walls draped in soft, quivering tissue, giving the sensation of being watched."
+            },
+            {
+                "name": "Vein Passage",
+                "description": "a narrow passageway that resembles a vein, pulsing rhythmically, with a slick glistening surface underfoot."
+            }
+        ],
+        "events": [
+            {
+                "name": "Nothing",
+                "description": "The room is empty and quiet, naught for the dripping of mysterious fluids."
+            },
+            {
+                "name": "Pit Trap",
+                "description": "You hear a click. The ground beneath you gives way as a pit trap opens up."
+            },
+            {
+                "name": "Soothsayer",
+                "description": "A robed figure materializes out of the shadows. 'I can see your fate,' they whisper."
+            },
+            {
+                "name": "Weak Monster",
+                "description": "A weak monster approaches, its grotesque form hunched and staggering towards you."
+            },
+            {
+                "name": "Tough Monster",
+                "description": "A tough monster emerges, its flesh twisted and muscular."
+            },
+            {
+                "name": "Merchant",
+                "description": "A figure wearing a hooded cloak gestures for you to approach. 'Care to trade?' they ask."
+            }
+        ]
     },
-
     "items": {
         "weapons": {
             "Beinrýtingur": {
                 "attack": "d4 + 1",
                 "description": "A sharp dagger of bone ripped from the chasm."
             },
-            "Crowblade":{
+            "Crowblade": {
                 "attack": "d6",
                 "description": "The long talon that extends up the forearm of Crowmeat."
             }
