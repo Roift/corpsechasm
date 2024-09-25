@@ -61,6 +61,7 @@
         ]
     },
     "Advance": {
+        "back_sound": "/sounds/bkground.mp3",
         "text": "You survey the fleshy chamber. There are three passageways.\nA narrow crawlspace to the North, a wide but dark opening to the West, \nand an illuminated, windy corridor to the East.\nWhich passage sings to you?",
         "next_state": [
             {
@@ -91,11 +92,48 @@
         }
     },
     "HandleEvent": {
-        "text": "{{eventDesc}}",
+        "text": "",
         "next_state": [
             {
                 "type": "button",
                 "text": "Proceed",
+                "next_state": "combat",
+                "input": "Y"
+            }
+        ]
+    },
+    "combat": {
+        "text": "Enemy approaches!",
+        "back_sound": "/sounds/confrontation.mp3",
+        "next_state": [
+            {
+                "text": "ATTACK",
+                "next_state": "CombatTurn",
+                "input": "A"
+            },
+            {
+                "text": "FLEE",
+                "next_state": "FleeAttempt",
+                "input": "F"
+            }
+        ]
+    },
+    "GameOver": {
+        "text": "You have been slain. Your journey ends here.",
+        "ascii-art": "GAME OVER ART",
+        "next_state": [
+            {
+                "text": "Play Again",
+                "next_state": "start",
+                "input": "Y"
+            }
+        ]
+    },
+    "Victory": {
+        "text": "{{enemy_name}} lies dead at your feet. {{points}} points absorbed.",
+        "next_state": [
+            {
+                "text": "Continue",
                 "next_state": "Advance",
                 "input": "Y"
             }
@@ -139,27 +177,42 @@
         "events": [
             {
                 "name": "Nothing",
-                "description": "The room is empty and quiet, naught for the dripping of mysterious fluids."
+                "description": "The room is empty and quiet, naught for the dripping of mysterious fluids.",
+                "type": "combat"
             },
             {
                 "name": "Pit Trap",
-                "description": "You hear a click. The ground beneath you gives way as a pit trap opens up."
+                "description": "You hear a click. The ground beneath you gives way as a pit trap opens up.",
+                "type": "combat"
             },
             {
                 "name": "Soothsayer",
-                "description": "A robed figure materializes out of the shadows. 'I can see your fate,' they whisper."
+                "description": "A robed figure materializes out of the shadows. 'I can see your fate,' they whisper.",
+                "type": "combat"
             },
             {
-                "name": "Weak Monster",
-                "description": "A weak monster approaches, its grotesque form hunched and staggering towards you."
-            },
-            {
-                "name": "Tough Monster",
-                "description": "A tough monster emerges, its flesh twisted and muscular."
+                "name": "Monster",
+                "description": "A weak monster approaches, its grotesque form hunched and staggering towards you.",
+                "type": "combat"
             },
             {
                 "name": "Merchant",
-                "description": "A figure wearing a hooded cloak gestures for you to approach. 'Care to trade?' they ask."
+                "description": "A figure wearing a hooded cloak gestures for you to approach. 'Care to trade?' they ask.",
+                "type": "combat"
+            }
+        ],
+        "enemies": [
+            {
+                "name": "Crowmeat",
+                "description": "a grotesque abomination, with shiny pink flesh and a malnourished humanoid frame. Its head is a poor facsimile of a raven.",
+                "points": 3,
+                "health": 10
+            },
+            {
+                "name": "Blood-Drenched Skeleton",
+                "description": "the shambling form of a once-person. Its skeletal frame is shiny with bright red viscera.",
+                "points": 3,
+                "health": 10
             }
         ]
     },
@@ -173,24 +226,6 @@
                 "attack": "d6",
                 "description": "The long talon that extends up the forearm of Crowmeat."
             }
-        }
-    },
-    "enemies": {
-        "weak_monster": {
-            "id": 1,
-            "name": "Blood-Drenched Skeleton",
-            "health": 6,
-            "attack": "d4",
-            "points": 3,
-            "description": "A raised skeleton whose bones are entirely covered in bright, sticky, red blood."
-        },
-        "tough_monster": {
-            "id": 2,
-            "name": "Crowmeat",
-            "health": 8,
-            "attack": "d6",
-            "points": 5,
-            "description": "A grotesque abomination, with shiny pink flesh and a malnourished humanoid frame. Its head is a poor facsimile of a raven."
         }
     }
 }

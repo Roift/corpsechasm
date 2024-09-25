@@ -77,12 +77,13 @@
         var bk_audio = new Audio();
         let typingInterval;
 
+        //Player stats are static and not read from game_def
         const player = {
             name: "Kargunt",
             health: 15,
             maxHealth: 15,
             silver: 15 + rollD6(),
-            weapon: { name: "Beinrýtingur", attack: rollD4() + 1 },
+            weapon: { name: "Beinrýtingur", attack: 4 },
             armor: null,
             xp: 0,
             points: 0,
@@ -90,6 +91,9 @@
             scrolls: []
         };
 
+        let currentEnemy = {};
+
+        //Update player stats
         function updateStats() {
             const statsContent = `
             <strong>Name:</strong> ${player.name}<br>
@@ -104,7 +108,9 @@
             $('#stats_content').html(statsContent);
         }
 
+        //Top-down rendering effect for ASCII art
         function scanText(element, text, speed) {
+            console.log("Rendering Scan Effect");
             let lines = text.split("\n");
             let i = 0;
 
@@ -119,14 +125,17 @@
             scan();
         }
 
+        //Typewriter rendering effect for all text
         function typeText(element, text, speed, callback = null) {
             element.html('');
             $('#skip-instruction').show();
             let i = 0;
             let typing = true;
 
+            //Skip typewriter effect if player presses enter
             const handleKeyDown = (event) => {
                 if (event.key === 'Enter' && typing) {
+                    console.log("Skipping Text!");
                     clearTimeout(typingInterval);
                     element.html(text);
                     typing = false;
@@ -152,12 +161,14 @@
             type();
         }
 
+        //Called to ensure text clears between state transitions
         function clearText() {
             $('#my_text').html('');
             clearTimeout(typingInterval);
             typingInterval = null;
         }
 
+        //Renders button options defined in state
         function renderOptions(options) {
             if (options) {
                 let build_html = '';
@@ -170,14 +181,35 @@
         }
 
         function rollD4() {
+            console.log("Rolling d4...");
             return Math.floor(Math.random() * 4) + 1; // Rolls a d4
         }
 
         function rollD6() {
+            console.log("Rolling d6...");
             return Math.floor(Math.random() * 6) + 1; // Rolls a d6
         }
 
+        function selectEnemy() {
+            const enemies = our_game_data.pools.enemies;
+            const randomIndex = Math.floor(Math.random() * enemies.length);
+            currentEnemy = enemies[randomIndex];
+
+            console.log("Facing Enemy:", currentEnemy.name);
+
+            const enemyDesc = currentEnemy.description;
+            const enemyName = currentEnemy.name;
+
+            const fullDescription = `${enemyName} approaches.\n\nIt is a ${enemyDesc}`;
+            typeText($('#my_text'), fullDescription, 50);
+        }
+
+        function enterCombat() {
+            selectEnemy();
+        }
+
         function generateRoom() {
+            console.log("Generating Room...");
             const roomsPool = our_game_data.pools.rooms;
             const eventsPool = our_game_data.pools.events;
 
@@ -187,34 +219,82 @@
             const roomDescription = randomRoom.description;
             const eventDescription = randomEvent.description;
 
-            // Set the current state to HandleEvent after generating the room and event
+            console.log("\nRoom is: ", randomRoom.name);
+            console.log("\nEvent name: ", randomEvent.name);
+
+            $('#my_options').html('');
+
+            // Set current state to HandleEvent after generating the room and event
             current_state = 'HandleEvent';
+            console.log("Current state is: ", current_state);
 
             our_game_data['HandleEvent']['text'] = eventDescription;
+            // Save the event type for the next state transition after the player clicks "Proceed"
+            our_game_data['HandleEvent']['next_state'] = randomEvent.type;
 
             // Update the text to display the room and event
             const fullDescription = `You enter ${roomDescription}\n\n${eventDescription}`;
-            typeText($('#my_text'), fullDescription, 50, function () {
-                $('#my_options').html("<button onclick='proceedToEvent()'>Proceed</button>");
-            });
+            typeText($('#my_text'), fullDescription, 50);  // Let the text type out progressively
+
+            renderOptions([{
+                text: "Proceed",
+                next_state: our_game_data['HandleEvent']['next_state'] // Transition based on the event type
+            }]);
         }
 
-        function proceedToEvent() {
-            current_state = 'Advance';
-            visit_state();
-        }
-
-        function visit_state() {
+        function visit_state(state) {
             let textElement = $('#my_text');
             clearText();
+
+            // Log the current state and game data
+            console.log("Visiting State:", current_state);
+            console.log("Game Data:", our_game_data);
+
+            if (our_game_data[current_state]['back_sound'] != null) {
+                console.log("Changing music!");
+                bk_audio.pause();
+                if (our_game_data[current_state]['back_sound'] == '') {
+                    bk_audio.pause();
+                }
+                bk_audio = new Audio(our_game_data[current_state]['back_sound']);
+                bk_audio.play();
+
+                bk_audio.addEventListener('timeupdate', function () {
+                    var buffer = .44
+                    if (this.currentTime > this.duration - buffer) {
+                        this.currentTime = 0
+                        this.play()
+                    }
+                });
+            }
+
+            // Check if the current state exists in the game data
+            if (!our_game_data[current_state]) {
+                console.error("State does not exist in game data:", current_state);
+                return; // Exit early to prevent further errors
+            }
+
+            if (current_state === 'GetWeap') {
+                player.weapon = { name: 'Beinrýtingur', attack: 'D4 + 1' };
+                updateStats();
+            }
 
             if (current_state === 'GenerateRoom') {
                 generateRoom();
                 let options = our_game_data[current_state]['next_state'];
                 renderOptions(options);
-                return; // Exit early, as we've already handled the room generation
+                return; // Exit early as we've already handled the room generation
             }
 
+            if (current_state === 'combat') {
+                console.log("About to handle combat!");
+                let options = our_game_data[current_state]['next_state'];
+                enterCombat();
+                renderOptions(options);
+                return; // Ensure we don't execute the rest of the function in combat state
+            }
+
+            // Check if there is text to display
             if (our_game_data[current_state]['text'] != null) {
                 let stateText = our_game_data[current_state]['text'];
                 if (stateText) {
@@ -226,11 +306,8 @@
                 } else {
                     textElement.hide();
                 }
-            }
-
-            if (current_state === 'GetWeap') {
-                player.weapon = { name: 'Beinrýtingur', attack: 'D4 + 1' };
-                updateStats();
+            } else {
+                console.warn("No text found for current state:", current_state);
             }
 
             if (our_game_data[current_state]['img'] != null) {
@@ -238,15 +315,6 @@
                 $('#my_img').show();
             } else {
                 $('#my_img').hide();
-            }
-
-            const newBackSound = our_game_data[current_state]['back_sound'];
-            if (newBackSound) {
-                if (bk_audio.src !== newBackSound) {
-                    bk_audio.src = newBackSound;
-                    bk_audio.loop = true;
-                    bk_audio.play();
-                }
             }
 
             let options = our_game_data[current_state]['next_state'];
@@ -257,11 +325,12 @@
             setTimeout(function () {
                 $.getJSON("game_def.json", function (data) {
                     our_game_data = data;
-                    visit_state();
+                    visit_state(current_state);
                 });
             }, 1000);
         });
 
+        //Reads ASCII art from game data and displays it with scanText render effect
         function showAsciiArt() {
             if (our_game_data[current_state]['ascii-art'] != null) {
                 let asciiElement = $('<div class="ascii-art"></div>');
