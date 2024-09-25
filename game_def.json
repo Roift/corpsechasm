@@ -61,7 +61,6 @@
         ]
     },
     "Advance": {
-        "back_sound": "/sounds/bkground.mp3",
         "text": "You survey the fleshy chamber. There are three passageways.\nA narrow crawlspace to the North, a wide but dark opening to the West, \nand an illuminated, windy corridor to the East.\nWhich passage sings to you?",
         "next_state": [
             {
@@ -102,6 +101,28 @@
             }
         ]
     },
+    "postCombatAdvance": {
+        "back_sound": "/sounds/bkground.mp3",
+        "text": "There is a crossroads before you. Which direction do you proceed?",
+        "next_state": [
+            {
+                "type": "button",
+                "text": "North",
+                "next_state": "GenerateRoom",
+                "input": "N"
+            },
+            {
+                "text": "East",
+                "next_state": "GenerateRoom",
+                "input": "E"
+            },
+            {
+                "text": "West",
+                "next_state": "GenerateRoom",
+                "input": "W"
+            }
+        ]
+    },
     "combat": {
         "text": "Enemy approaches!",
         "back_sound": "/sounds/confrontation.mp3",
@@ -117,6 +138,26 @@
                 "input": "F"
             }
         ]
+    },
+    "FleeAttempt":{
+        "text": "",
+        "fleeFail": "The enemy blocks your exit.",
+        "fleeSuccess": "You successfully escape.",
+        "success_state": [
+            {
+                "text": "Run Away",
+                "next_state": "postCombatAdvance",
+                "input": "Y"
+            }
+        ],
+        "fail_state": [
+            {
+                "text": "Face Your Adversary",
+                "next_state": "CombatTurn",
+                "input": "Y"
+            }
+        ]
+
     },
     "GameOver": {
         "text": "You have been slain. Your journey ends here.",

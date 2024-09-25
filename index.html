@@ -200,12 +200,16 @@
             const enemyDesc = currentEnemy.description;
             const enemyName = currentEnemy.name;
 
-            const fullDescription = `${enemyName} approaches.\n\nIt is a ${enemyDesc}`;
+            const fullDescription = `${enemyName} approaches.\n\nIt is ${enemyDesc}`;
             typeText($('#my_text'), fullDescription, 50);
+
         }
 
         function enterCombat() {
+            //Select random enemy from pool and display its intro
             selectEnemy();
+
+            //Now player selects Attack or Flee
         }
 
         function generateRoom() {
@@ -292,6 +296,18 @@
                 enterCombat();
                 renderOptions(options);
                 return; // Ensure we don't execute the rest of the function in combat state
+            }
+
+            if (current_state === 'FleeAttempt'){
+                console.log("Attempting to flee combat!");
+
+                if (rollD6() <= 3){
+                    let options = our_game_data[current_state]['fail_state']; 
+
+                } else {
+                    let options = our_game_data[current_state]['success_state'];     
+                }
+                renderOptions(options);
             }
 
             // Check if there is text to display
