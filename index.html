@@ -254,22 +254,22 @@
             console.log("Visiting State:", current_state);
             console.log("Game Data:", our_game_data);
 
-            if (our_game_data[current_state]['back_sound'] != null) {
+            if (our_game_data[current_state] && 'back_sound' in our_game_data[current_state]) {
                 console.log("Changing music!");
                 bk_audio.pause();
-                if (our_game_data[current_state]['back_sound'] == '') {
-                    bk_audio.pause();
+                if (our_game_data[current_state]['back_sound']) {
+                    bk_audio = new Audio(our_game_data[current_state]['back_sound']);
+                    bk_audio.play();
+                    bk_audio.addEventListener('timeupdate', function () {
+                        var buffer = .44
+                        if (this.currentTime > this.duration - buffer) {
+                            this.currentTime = 0;
+                            this.play();
+                        }
+                    });
                 }
-                bk_audio = new Audio(our_game_data[current_state]['back_sound']);
-                bk_audio.play();
-
-                bk_audio.addEventListener('timeupdate', function () {
-                    var buffer = .44
-                    if (this.currentTime > this.duration - buffer) {
-                        this.currentTime = 0
-                        this.play()
-                    }
-                });
+            } else {
+                console.log("No back_sound defined for this state.");
             }
 
             // Check if the current state exists in the game data
@@ -298,16 +298,24 @@
                 return; // Ensure we don't execute the rest of the function in combat state
             }
 
-            if (current_state === 'FleeAttempt'){
+            if (current_state === 'FleeAttempt') {
                 console.log("Attempting to flee combat!");
+                if (rollD6() <= 3) {
+                    console.log("Flee success!")
 
-                if (rollD6() <= 3){
-                    let options = our_game_data[current_state]['fail_state']; 
+                    our_game_data['FleeAttempt']['next_state'] = 'postCombatAdvance';
 
+                    const enemyName = currentEnemy.name;
+                    const fullDescription = `You barely escape ${enemyName} with your life.`;
+                    typeText($('#my_text'), fullDescription, 50);  // Let the text type out progressively
+
+                    renderOptions([{
+                        text: "Run Away",
+                        next_state: our_game_data['FleeAttempt']['next_state']
+                    }]);
                 } else {
-                    let options = our_game_data[current_state]['success_state'];     
+                    console.log("Flee failed!")
                 }
-                renderOptions(options);
             }
 
             // Check if there is text to display

@@ -143,6 +143,7 @@
         "text": "",
         "fleeFail": "The enemy blocks your exit.",
         "fleeSuccess": "You successfully escape.",
+        "next_state": "",
         "success_state": [
             {
                 "text": "Run Away",
@@ -157,7 +158,6 @@
                 "input": "Y"
             }
         ]
-
     },
     "GameOver": {
         "text": "You have been slain. Your journey ends here.",
