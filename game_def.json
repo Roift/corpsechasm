@@ -40,7 +40,7 @@
         ]
     },
     "GetWeap": {
-        "text": "Instinct compels you to search for a weapon.\nLodged within the wall of the cavern lies a shard of osseous matter.\nYou grip the bone and wrench it free, blood oozing from the hole you've left in its place.\n\n<span style='color:green;'>[+1 Beinrýtingur]</span>",
+        "text": "Instinct compels you to search for a weapon.\nLodged within the wall of the cavern lies a shard of osseous matter.\nYou grip the bone and wrench it free, blood oozing from the hole you've left in its place.",
         "next_state": [
             {
                 "text": "Look around",
@@ -51,10 +51,12 @@
     },
     "GiveUp": {
         "text": "If someone went through all the effort to drug and drag you down here, then surely you must have done something to deserve it.\nYou close your eyes and quietly accept your fate.\nWarmth surrounds you, your flesh becoming one with the chasm.\nYou have been consumed.",
+        "sound": "/sounds/gameover.mp3",
+        "back_sound": "/sounds/silence.mp3",
         "ascii-art": "\n\n ▄████  ▄▄▄       ███▄ ▄███▓▓█████     ▒█████   ██▒   █▓▓█████  ██▀███  \n ██▒ ▀█▒▒████▄    ▓██▒▀█▀ ██▒▓█   ▀    ▒██▒  ██▒▓██░   █▒▓█   ▀ ▓██ ▒ ██▒\n▒██░▄▄▄░▒██  ▀█▄  ▓██    ▓██░▒███      ▒██░  ██▒ ▓██  █▒░▒███   ▓██ ░▄█ ▒\n░▓█  ██▓░██▄▄▄▄██ ▒██    ▒██ ▒▓█  ▄    ▒██   ██░  ▒██ █░░▒▓█  ▄ ▒██▀▀█▄  \n░▒▓███▀▒ ▓█   ▓██▒▒██▒   ░██▒░▒████▒   ░ ████▓▒░   ▒▀█░  ░▒████▒░██▓ ▒██▒\n░▒   ▒  ▒▒   ▓▒█░░ ▒░   ░  ░░░ ▒░ ░   ░ ▒░▒░▒░    ░ ▐░  ░░ ▒░ ░░ ▒▓ ░▒▓░\n░   ░   ▒   ▒▒ ░░  ░      ░ ░ ░  ░     ░ ▒ ▒░    ░ ░░   ░ ░  ░  ░▒ ░ ▒░\n░ ░   ░   ░   ▒   ░      ░      ░      ░ ░ ░ ▒       ░░     ░     ░░   ░ \n       ░       ░  ░       ░      ░  ░       ░ ░        ░     ░  ░   ░     \n                                                     ░                   \n",
         "next_state": [
             {
-                "text": "Play Again.",
+                "text": "Play Again",
                 "next_state": "start",
                 "input": "Y"
             }
@@ -96,14 +98,14 @@
             {
                 "type": "button",
                 "text": "Proceed",
-                "next_state": "combat",
+                "next_state": "StartCombat",
                 "input": "Y"
             }
         ]
     },
     "postCombatAdvance": {
-        "back_sound": "/sounds/bkground.mp3",
         "text": "There is a crossroads before you. Which direction do you proceed?",
+        "back_sound": "/sounds/bkground.mp3",
         "next_state": [
             {
                 "type": "button",
@@ -123,12 +125,27 @@
             }
         ]
     },
-    "combat": {
+    "StartCombat": {
         "text": "Enemy approaches!",
         "back_sound": "/sounds/confrontation.mp3",
         "next_state": [
             {
-                "text": "ATTACK",
+                "text": "ENGAGE",
+                "next_state": "CombatTurn",
+                "input": "A"
+            },
+            {
+                "text": "FLEE",
+                "next_state": "FleeAttempt",
+                "input": "F"
+            }
+        ]
+    },
+    "combat": {
+        "text": "",
+        "next_state": [
+            {
+                "text": "ENGAGE",
                 "next_state": "CombatTurn",
                 "input": "A"
             },
@@ -143,25 +160,21 @@
         "text": "",
         "fleeFail": "The enemy blocks your exit.",
         "fleeSuccess": "You successfully escape.",
-        "next_state": "",
-        "success_state": [
-            {
-                "text": "Run Away",
-                "next_state": "postCombatAdvance",
-                "input": "Y"
-            }
-        ],
-        "fail_state": [
-            {
-                "text": "Face Your Adversary",
-                "next_state": "CombatTurn",
-                "input": "Y"
-            }
-        ]
+        "next_state": ""
+    },
+    "AttackEnemy":{
+        "text": "",
+        "next_state": ""
+    },
+    "CombatTurn":{
+        "text": "",
+        "next_state": ""
     },
     "GameOver": {
-        "text": "You have been slain. Your journey ends here.",
-        "ascii-art": "GAME OVER ART",
+        "text": "You have been slain. Your corpse will now become one with the Chasm.",
+        "sound": "/sounds/gameover.mp3",
+        "back_sound": "/sounds/silence.mp3",
+        "ascii-art": "\n\n ▄████  ▄▄▄       ███▄ ▄███▓▓█████     ▒█████   ██▒   █▓▓█████  ██▀███  \n ██▒ ▀█▒▒████▄    ▓██▒▀█▀ ██▒▓█   ▀    ▒██▒  ██▒▓██░   █▒▓█   ▀ ▓██ ▒ ██▒\n▒██░▄▄▄░▒██  ▀█▄  ▓██    ▓██░▒███      ▒██░  ██▒ ▓██  █▒░▒███   ▓██ ░▄█ ▒\n░▓█  ██▓░██▄▄▄▄██ ▒██    ▒██ ▒▓█  ▄    ▒██   ██░  ▒██ █░░▒▓█  ▄ ▒██▀▀█▄  \n░▒▓███▀▒ ▓█   ▓██▒▒██▒   ░██▒░▒████▒   ░ ████▓▒░   ▒▀█░  ░▒████▒░██▓ ▒██▒\n░▒   ▒  ▒▒   ▓▒█░░ ▒░   ░  ░░░ ▒░ ░   ░ ▒░▒░▒░    ░ ▐░  ░░ ▒░ ░░ ▒▓ ░▒▓░\n░   ░   ▒   ▒▒ ░░  ░      ░ ░ ░  ░     ░ ▒ ▒░    ░ ░░   ░ ░  ░  ░▒ ░ ▒░\n░ ░   ░   ░   ▒   ░      ░      ░      ░ ░ ░ ▒       ░░     ░     ░░   ░ \n       ░       ░  ░       ░      ░  ░       ░ ░        ░     ░  ░   ░     \n                                                     ░                   \n",
         "next_state": [
             {
                 "text": "Play Again",
@@ -171,11 +184,13 @@
         ]
     },
     "Victory": {
-        "text": "{{enemy_name}} lies dead at your feet. {{points}} points absorbed.",
+        "text": "",
+        "back_sound": "/sounds/silence.mp3",
+        "sound": "/sounds/victory.mp3",
         "next_state": [
             {
                 "text": "Continue",
-                "next_state": "Advance",
+                "next_state": "postCombatAdvance",
                 "input": "Y"
             }
         ]
@@ -219,41 +234,41 @@
             {
                 "name": "Nothing",
                 "description": "The room is empty and quiet, naught for the dripping of mysterious fluids.",
-                "type": "combat"
+                "type": "StartCombat"
             },
             {
                 "name": "Pit Trap",
                 "description": "You hear a click. The ground beneath you gives way as a pit trap opens up.",
-                "type": "combat"
+                "type": "StartCombat"
             },
             {
                 "name": "Soothsayer",
                 "description": "A robed figure materializes out of the shadows. 'I can see your fate,' they whisper.",
-                "type": "combat"
+                "type": "StartCombat"
             },
             {
                 "name": "Monster",
                 "description": "A weak monster approaches, its grotesque form hunched and staggering towards you.",
-                "type": "combat"
+                "type": "StartCombat"
             },
             {
                 "name": "Merchant",
                 "description": "A figure wearing a hooded cloak gestures for you to approach. 'Care to trade?' they ask.",
-                "type": "combat"
+                "type": "StartCombat"
             }
         ],
         "enemies": [
             {
                 "name": "Crowmeat",
-                "description": "a grotesque abomination, with shiny pink flesh and a malnourished humanoid frame. Its head is a poor facsimile of a raven.",
+                "description": "a grotesque abomination, with shiny pink flesh and a malnourished humanoid frame.\nIts head is a poor facsimile of a raven.",
                 "points": 3,
-                "health": 10
+                "health": 1
             },
             {
                 "name": "Blood-Drenched Skeleton",
                 "description": "the shambling form of a once-person. Its skeletal frame is shiny with bright red viscera.",
                 "points": 3,
-                "health": 10
+                "health": 1
             }
         ]
     },
