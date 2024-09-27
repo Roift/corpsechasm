@@ -177,7 +177,6 @@
                     setTimeout(scan, speed);
                 }
             }
-
             scan();
         }
 
@@ -264,7 +263,7 @@
             const enemyDesc = currentEnemy.description;
             const enemyName = currentEnemy.name;
 
-            const fullDescription = `${enemyName} approaches.\n\nIt is ${enemyDesc}`;
+            const fullDescription = `${enemyName} approaches.\n\n${enemyDesc}`;
             typeText($('#my_text'), fullDescription, 50);
 
         }
@@ -311,11 +310,6 @@
             console.log("Visiting State:", current_state);
             console.log("Game Data:", our_game_data);
 
-            if (our_game_data[current_state]['sound'] != null) {
-                var audio = new Audio(our_game_data[current_state]['sound']);
-                audio.play();
-            }
-
             if (our_game_data[current_state] && 'back_sound' in our_game_data[current_state]) {
                 console.log("Changing music!");
                 bk_audio.pause();
@@ -351,6 +345,40 @@
                 let options = our_game_data[current_state]['next_state'];
                 renderOptions(options);
                 return; // Exit early as we've already handled the room generation
+            }
+
+            if (current_state === 'trapCheck') {
+                console.log("Trap triggered!");
+                gameLog('Kargunt has activated a trap.');
+                dodgeRoll = rollD6();
+                if (dodgeRoll <= 3) {
+                    const fullDescription = `You miss the chunk of Chasm-flesh you were hoping to land on. Your feet dip into the bile.\nIt burns.`;
+                    typeText($('#my_text'), fullDescription, 50, function () { });
+                    gameLog('Kargunt is caught by the trap!');
+                    dam = rollD6();
+                    player.health = player.health - dam;
+                    updateStats();
+                    flashScreen('red');
+                    gameLog('Kargunt takes ', dam, ' damage from the trap.');
+                    renderOptions([
+                        {
+                            text: "Continue",
+                            next_state: 'Advance'
+                        }
+                    ]);
+                    return;
+                } else {
+                    const fullDescription = `You deftly avoid the sickly fluid, landing to safety on a raised chunk of Chasm-flesh.`;
+                    typeText($('#my_text'), fullDescription, 50, function () { });
+                    gameLog('Kargunt avoids the trap!')
+                    renderOptions([
+                        {
+                            text: "Continue",
+                            next_state: 'Advance'
+                        }
+                        ]);
+                        return;
+                }
             }
 
             if (current_state === 'StartCombat') {
@@ -391,23 +419,23 @@
                 renderOptions(options);  // Show buttons for Attack or Flee
             }
 
-            if (current_state === 'GameOver'){
+            if (current_state === 'GameOver') {
                 gameLog('Kargunt has been consumed by the CORPSE CHASM.')
             }
 
-            if (current_state === 'Victory'){
+            if (current_state === 'Victory') {
                 gameLog('Kargunt has slain ', currentEnemy.name, "!");
                 const enemyName = currentEnemy.name;
                 const enemyPoints = currentEnemy.points;
                 const fullDescription = `${enemyName} lies dead at your feet. Absorbed ${enemyPoints} points.`;
                 player.points = player.points + enemyPoints;
                 updateStats();
-                typeText($('#my_text'), fullDescription, 50, function () {});
+                typeText($('#my_text'), fullDescription, 50, function () { });
 
                 renderOptions([{
-                        text: "Proceed",
-                        next_state: 'postCombatAdvance'
-                    }]);
+                    text: "Proceed",
+                    next_state: 'postCombatAdvance'
+                }]);
 
                 return;
             }
@@ -446,15 +474,15 @@
                     console.log(currentEnemy.name, " has ", currentEnemy.health, "health.")
                     gameLog('Kargunt strikes', currentEnemy.name, ' for ', damageRoll, ' damage.')
 
-                    if (currentEnemy.health > 0){
+                    if (currentEnemy.health > 0) {
                         renderOptions([{
-                        text: "Continue",
-                        next_state: 'combat'
+                            text: "Continue",
+                            next_state: 'combat'
                         }]);
                     } else {
                         renderOptions([{
-                        text: "Continue",
-                        next_state: 'Victory'
+                            text: "Continue",
+                            next_state: 'Victory'
                         }]);
                     }
                     flashScreen('white');
@@ -544,6 +572,10 @@
                 $('#my_img').hide();
             }
 
+            if (our_game_data[current_state]['sound'] != null) {
+                var audio = new Audio(our_game_data[current_state]['sound']);
+                audio.play();
+            }
 
             let options = our_game_data[current_state]['next_state'];
             renderOptions(options);

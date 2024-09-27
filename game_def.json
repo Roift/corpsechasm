@@ -103,6 +103,28 @@
             }
         ]
     },
+    "trap":{
+        "text": "As bile begins to flow into the chamber, you attempt to leap to safety.",
+        "next_state": [
+            {
+                "type": "button",
+                "text": "REACT",
+                "next_state": "trapCheck",
+                "input": "Y"
+            }
+        ]
+    },
+    "trapCheck":{
+        "text": "",
+        "next_state": [
+            {
+                "type": "button",
+                "text": "",
+                "next_state": "",
+                "input": "Y"
+            }
+        ]
+    },
     "postCombatAdvance": {
         "text": "There is a crossroads before you. Which direction do you proceed?",
         "back_sound": "/sounds/bkground.mp3",
@@ -234,41 +256,71 @@
             {
                 "name": "Nothing",
                 "description": "The room is empty and quiet, naught for the dripping of mysterious fluids.",
-                "type": "StartCombat"
+                "type": "trap"
             },
             {
                 "name": "Pit Trap",
-                "description": "You hear a click. The ground beneath you gives way as a pit trap opens up.",
-                "type": "StartCombat"
+                "description": "It's too late when you discover that this room serves as some sort of stomach for the Chasm.",
+                "type": "trap"
             },
             {
                 "name": "Soothsayer",
                 "description": "A robed figure materializes out of the shadows. 'I can see your fate,' they whisper.",
-                "type": "StartCombat"
+                "type": "trap"
             },
             {
                 "name": "Monster",
                 "description": "A weak monster approaches, its grotesque form hunched and staggering towards you.",
-                "type": "StartCombat"
+                "type": "trap"
             },
             {
                 "name": "Merchant",
                 "description": "A figure wearing a hooded cloak gestures for you to approach. 'Care to trade?' they ask.",
-                "type": "StartCombat"
+                "type": "trap"
             }
         ],
         "enemies": [
             {
                 "name": "Crowmeat",
-                "description": "a grotesque abomination, with shiny pink flesh and a malnourished humanoid frame.\nIts head is a poor facsimile of a raven.",
-                "points": 3,
-                "health": 1
+                "description": "Its tall and gaunt figure is wet with pink flesh and a malnourished humanoid frame.\nIts head is a poor facsimile of a raven.\nIron blades extend from its wrists to its elbows.",
+                "points": 4,
+                "health": 7
             },
             {
                 "name": "Blood-Drenched Skeleton",
-                "description": "the shambling form of a once-person. Its skeletal frame is shiny with bright red viscera.",
+                "description": "The shambling form of a once-person. Its skeletal frame is shiny with bright red viscera.",
                 "points": 3,
-                "health": 1
+                "health": 6
+            },
+            {
+                "name": "Chasm Cultist",
+                "description": "The cultist is draped in clothing stitched of flesh.\nThey whisper madly in a wet-sounding forbidden tongue, cursing your existence.",
+                "points": 3,
+                "health": 6
+            },
+            {
+                "name": "Flesh Goblin",
+                "description": "Meat brought to life. The Flesh Goblin hungers.",
+                "points": 3,
+                "health": 5
+            },
+            {
+                "name": "Amorphous Shame",
+                "description": "Its ambiguous gray form saddens you.",
+                "points": 4,
+                "health": 6
+            },
+            {
+                "name": "Corpse Basilisk",
+                "description": "The Chasm itself yearns for your end. You face all who have been consumed.",
+                "points": "LevelUp",
+                "health": 11
+            },
+            {
+                "name": "Macrobacterium",
+                "description": "A slime of ginormous bacterium. The single-celled organism craves violence.",
+                "points": 5,
+                "health": 9
             }
         ]
     },
