@@ -459,7 +459,7 @@
                 gameLog('Kargunt attempts the Doomsayer\'s riddle.');
                 riddleRoll = rollD6();
                 if (riddleRoll % 2 == 0) {
-                    const fullDescription = `The riddle nearly shatters your mind. \nThe Doomsayer breaks out into maniacal laughter, before melting into a puddle of blood.`;
+                    const fullDescription = `The riddle nearly shatters your mind. \nThe Doomsayer breaks out into maniacal laughter before melting into a puddle of blood.`;
                     typeText($('#my_text'), fullDescription, 50, function () { });
                     gameLog('Kargunt failed the riddle.')
                     dam = rollD6();
