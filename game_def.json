@@ -103,6 +103,102 @@
             }
         ]
     },
+    "doomsayer":{
+        "text": "\n",
+        "next_state": [
+            {
+                "type": "button",
+                "text": "Attempt the riddle",
+                "next_state": "riddleCheck",
+                "input": "Y"
+            },
+            {
+                "type": "button",
+                "text": "Leave",
+                "next_state": "Advance",
+                "input": "Y"
+            }
+        ]
+    },
+    "shop":{
+        "back_sound": "/sounds/shop.mp3",
+        "text": "The Carrion Merchant spreads its wares in front of you. There is a selection of red-tinged vials, sinew-woven ropes,\narmor carved of hardened flesh, a rusty sword, a bloodied Corpse Crusher, and a pristine Zweihander.",
+        "next_state": [
+            {
+                "type": "button",
+                "text": "Potion (heal D6) | 4s",
+                "next_state": "buyPotion"
+            },
+            {
+                "text": "Rope (+1 Trap Roll) | 5s",
+                "next_state": "buyRope"
+            },
+            {
+                "text": "Fleshmail (-D4) | 10s",
+                "next_state": "buyArmor"
+            },
+            {
+                "text": "Sword (D6+1) | 12s",
+                "next_state": "buySword"
+            },
+            {
+                "text": "Líkkrossari (D6) | 9s",
+                "next_state": "buyHammer"
+            },
+            {
+                "text": "Mighty Zweihander (D6+2) | 25s",
+                "next_state": "buyZwei"
+            },
+            {
+                "text": "Leave",
+                "next_state": "postCombatAdvance"
+            }
+        ]
+    },
+    "vitality":{
+        "text": "The Doomsayer slices a gash down their forearm. Oily blood begins to ooze freely from the wound.\nThey invite you to imbibe.",
+        "next_state": [
+            {
+                "type": "button",
+                "text": "Proceed",
+                "next_state": "Advance",
+                "input": "Y"
+            }
+        ]
+    },
+    "wealth":{
+        "text": "The Doomsayer tosses you one of their necklaces of teeth. These are all made of silver.",
+        "next_state": [
+            {
+                "type": "button",
+                "text": "Proceed",
+                "next_state": "Advance",
+                "input": "Y"
+            }
+        ]
+    },
+    "power":{
+        "text": "The Doomsayer whispers a forbidden incantation. The chamber quivers, and you absorb 5 points from the Chasm itself.",
+        "next_state": [
+            {
+                "type": "button",
+                "text": "Proceed",
+                "next_state": "Advance",
+                "input": "Y"
+            }
+        ]
+    },
+    "riddleCheck":{
+        "text": "",
+        "next_state": [
+            {
+                "type": "button",
+                "text": "",
+                "next_state": "",
+                "input": "Y"
+            }
+        ]
+    },
     "trap":{
         "text": "As bile begins to flow into the chamber, you attempt to leap to safety.",
         "next_state": [
@@ -256,82 +352,125 @@
             {
                 "name": "Nothing",
                 "description": "The room is empty and quiet, naught for the dripping of mysterious fluids.",
-                "type": "trap"
+                "type": "Advance"
             },
             {
-                "name": "Pit Trap",
+                "name": "Stomach Chamber",
                 "description": "It's too late when you discover that this room serves as some sort of stomach for the Chasm.",
                 "type": "trap"
             },
             {
-                "name": "Soothsayer",
-                "description": "A robed figure materializes out of the shadows. 'I can see your fate,' they whisper.",
-                "type": "trap"
+                "name": "Doomsayer",
+                "description": "A figure adorned in teeth emerges from a sphincter in the wall.\n\"I know how the world will end. The Chasm is the key.\" the Doomsayer proclaims.\nWill you attempt to solve their riddle?",
+                "type": "doomsayer"
             },
             {
                 "name": "Monster",
-                "description": "A weak monster approaches, its grotesque form hunched and staggering towards you.",
-                "type": "trap"
+                "description": "A Chasm-dweller draws near. Its grotesque form nearly makes you vomit.",
+                "type": "StartCombat"
+            },
+            {
+                "name": "Monster2",
+                "description": "A creature emerges from the shadows. Its stench overwhelms your senses.",
+                "type": "StartCombat"
             },
             {
                 "name": "Merchant",
-                "description": "A figure wearing a hooded cloak gestures for you to approach. 'Care to trade?' they ask.",
-                "type": "trap"
+                "description": "You notice and follow the telltale scent of a Carrion Merchant.\nDraped in ragged furs and poorly tanned leather, they sift through decaying remains,\npulling out bone and innards with a practiced hand.\n\n\"Care to trade?\" they rasp, their voice like grinding bones. \"Fresh from the dead.\"",
+                "type": "shop"
             }
         ],
         "enemies": [
             {
                 "name": "Crowmeat",
-                "description": "Its tall and gaunt figure is wet with pink flesh and a malnourished humanoid frame.\nIts head is a poor facsimile of a raven.\nIron blades extend from its wrists to its elbows.",
+                "description": "Its tall and gaunt figure is wet with pink flesh and a malnourished humanoid frame.\nIts head is a poor facsimile of a raven, and iron blades extend from its wrists to its elbows.",
                 "points": 4,
+                "attack": "D4",
+                "modifier": 0,
                 "health": 7
             },
             {
                 "name": "Blood-Drenched Skeleton",
                 "description": "The shambling form of a once-person. Its skeletal frame is shiny with bright red viscera.",
                 "points": 3,
+                "attack": "D4",
+                "modifier": 0,
                 "health": 6
             },
             {
                 "name": "Chasm Cultist",
                 "description": "The cultist is draped in clothing stitched of flesh.\nThey whisper madly in a wet-sounding forbidden tongue, cursing your existence.",
                 "points": 3,
+                "attack": "D4",
+                "modifier": 0,
                 "health": 6
             },
             {
                 "name": "Flesh Goblin",
                 "description": "Meat brought to life. The Flesh Goblin hungers.",
                 "points": 3,
+                "attack": "D4",
+                "modifier": 0,
                 "health": 5
             },
             {
                 "name": "Amorphous Shame",
                 "description": "Its ambiguous gray form saddens you.",
                 "points": 4,
-                "health": 6
+                "attack": "D6",
+                "modifier": 0,
+                "health": 8
             },
             {
                 "name": "Corpse Basilisk",
                 "description": "The Chasm itself yearns for your end. You face all who have been consumed.",
-                "points": "LevelUp",
+                "points": 15,
+                "attack": "D6",
+                "modifier": 0,
                 "health": 11
             },
             {
                 "name": "Macrobacterium",
                 "description": "A slime of ginormous bacterium. The single-celled organism craves violence.",
                 "points": 5,
+                "attack": "D4",
+                "modifier": 0,
                 "health": 9
+            }
+        ],
+        "riddles": [
+            {
+                "name": "1",
+                "text": ".\"When the sky is swallowed by flesh and bone,\nWhat remains of light once known?\nWhen the Chasm breathes and stars decay,\nWhere will the living find their way?\""
+            },
+            {
+                "name": "2",
+                "text": ".\"The mouth of the world opens wide,\nThrough it, the Heavens slide.\nWhat teeth gnash the souls of men,\nAnd when it's done, will it start again?\""
+            },
+            {
+                "name": "3",
+                "text": ".\"The marrow of life is stripped to the core,\nThe Chasm craves but always more.\nWhat remains when all is fed,\nAnd who will count the countless dead?\""
+            },
+            {
+                "name": "4",
+                "text": ".\"A pit with no bottom, no walls to see,\nA place where flesh and spirit flee.\nWho dares to look into its maw,\nAnd who will break the final law?\""
+            },
+            {
+                "name": "5",
+                "text": ".\"The end begins with a single breath,\nFrom the Chasm's maw comes endless death.\nWhat stirs within the hollow tomb,\nAnd who will face their final doom?\""
             }
         ]
     },
     "items": {
         "weapons": {
             "Beinrýtingur": {
-                "attack": "d4 + 1",
+                "roll": "D4",
+                "modifier": "1",
                 "description": "A sharp dagger of bone ripped from the chasm."
             },
             "Crowblade": {
                 "attack": "d6",
+                "modifier": "0",
                 "description": "The long talon that extends up the forearm of Crowmeat."
             }
         }
