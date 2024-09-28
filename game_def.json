@@ -63,21 +63,21 @@
         ]
     },
     "Advance": {
-        "text": "You survey the fleshy chamber. There are three passageways.\nA narrow crawlspace to the North, a wide but dark opening to the West, \nand an illuminated, windy corridor to the East.\nWhich passage sings to you?",
+        "text": "You survey the fleshy chamber. There are three passageways.\nA narrow crawlspace ahead of you, a wide but dark opening to your left, \nand an illuminated, windy corridor to the right.\nWhich passage sings to you?",
         "next_state": [
             {
                 "type": "button",
-                "text": "North",
+                "text": "Ahead",
                 "next_state": "GenerateRoom",
                 "input": "N"
             },
             {
-                "text": "East",
+                "text": "Left",
                 "next_state": "GenerateRoom",
                 "input": "E"
             },
             {
-                "text": "West",
+                "text": "Right",
                 "next_state": "GenerateRoom",
                 "input": "W"
             }
@@ -103,7 +103,7 @@
             }
         ]
     },
-    "doomsayer":{
+    "doomsayer": {
         "text": "\n",
         "next_state": [
             {
@@ -120,7 +120,7 @@
             }
         ]
     },
-    "shop":{
+    "shop": {
         "back_sound": "/sounds/shop.mp3",
         "text": "The Carrion Merchant spreads its wares in front of you. There is a selection of red-tinged vials, sinew-woven ropes,\narmor carved of hardened flesh, a rusty sword, a bloodied Corpse Crusher, and a pristine Zweihander.",
         "next_state": [
@@ -143,7 +143,7 @@
             },
             {
                 "text": "Líkkrossari (D6) | 9s",
-                "next_state": "buyHammer"
+                "next_state": "buyMace"
             },
             {
                 "text": "Mighty Zweihander (D6+2) | 25s",
@@ -155,7 +155,117 @@
             }
         ]
     },
-    "vitality":{
+    "shopNoMusic": {
+        "text": "The Carrion Merchant spreads its wares in front of you. There is a selection of red-tinged vials, sinew-woven ropes,\narmor carved of hardened flesh, a rusty sword, a bloodied Corpse Crusher, and a pristine Zweihander.",
+        "next_state": [
+            {
+                "type": "button",
+                "text": "Potion (heal D6) | 4s",
+                "next_state": "buyPotion"
+            },
+            {
+                "text": "Rope (+1 Trap Roll) | 5s",
+                "next_state": "buyRope"
+            },
+            {
+                "text": "Fleshmail (-D4) | 10s",
+                "next_state": "buyArmor"
+            },
+            {
+                "text": "Sword (D6+1) | 12s",
+                "next_state": "buySword"
+            },
+            {
+                "text": "Líkkrossari (D6) | 9s",
+                "next_state": "buyMace"
+            },
+            {
+                "text": "Mighty Zweihander (D6+2) | 25s",
+                "next_state": "buyZwei"
+            },
+            {
+                "text": "Leave",
+                "next_state": "postCombatAdvance"
+            }
+        ]
+    },
+    "buyPotion": {
+        "text": "You pick up a gleaming yellow vial of amniotic fluid.",
+        "next_state": [
+            {
+                "type": "button",
+                "text": "Continue Shopping",
+                "next_state": "shopNoMusic"
+            },
+            {
+                "type": "button",
+                "text": "Leave",
+                "next_state": "postCombatAdvance"
+            }
+        ]
+    },
+    "buyRope": {
+        "text": "You select the sturdiest looking rope, all woven from different parts of the Chasm's innards.",
+        "next_state": [
+            {
+                "type": "button",
+                "text": "Continue Shopping",
+                "next_state": "shopNoMusic"
+            },
+            {
+                "type": "button",
+                "text": "Leave",
+                "next_state": "postCombatAdvance"
+            }
+        ]
+    },
+    "buySword": {
+        "text": "The sword is rusted and unbalanced, but its dullness has taken it to a point of brutal serration.",
+        "next_state": [
+            {
+                "type": "button",
+                "text": "Continue Shopping",
+                "next_state": "shopNoMusic"
+            },
+            {
+                "type": "button",
+                "text": "Leave",
+                "next_state": "postCombatAdvance"
+            }
+        ]
+    },
+    "buyMace": {
+        "text": "The greatmace has obviously been used.\nRecently.\nBits of flesh are stuck to its spikes.",
+        "next_state": [
+            {
+                "type": "button",
+                "text": "Continue Shopping",
+                "next_state": "shopNoMusic"
+            },
+            {
+                "type": "button",
+                "text": "Leave",
+                "next_state": "postCombatAdvance"
+            }
+        ]
+    },
+    "buyZwei": {
+        "text": "You heave the Mighty Zweihander from its pedestal. It's almost too heavy for you.",
+        "next_state": [
+            {
+                "type": "button",
+                "text": "Continue Shopping",
+                "next_state": "shopNoMusic"
+            },
+            {
+                "type": "button",
+                "text": "Leave",
+                "next_state": "postCombatAdvance"
+            }
+        ]
+    },
+
+    "vitality": {
         "text": "The Doomsayer slices a gash down their forearm. Oily blood begins to ooze freely from the wound.\nThey invite you to imbibe.",
         "next_state": [
             {
@@ -166,7 +276,7 @@
             }
         ]
     },
-    "wealth":{
+    "wealth": {
         "text": "The Doomsayer tosses you one of their necklaces of teeth. These are all made of silver.",
         "next_state": [
             {
@@ -177,7 +287,7 @@
             }
         ]
     },
-    "power":{
+    "power": {
         "text": "The Doomsayer whispers a forbidden incantation. The chamber quivers, and you absorb 5 points from the Chasm itself.",
         "next_state": [
             {
@@ -188,7 +298,7 @@
             }
         ]
     },
-    "riddleCheck":{
+    "riddleCheck": {
         "text": "",
         "next_state": [
             {
@@ -199,7 +309,7 @@
             }
         ]
     },
-    "trap":{
+    "trap": {
         "text": "As bile begins to flow into the chamber, you attempt to leap to safety.",
         "next_state": [
             {
@@ -210,7 +320,7 @@
             }
         ]
     },
-    "trapCheck":{
+    "trapCheck": {
         "text": "",
         "next_state": [
             {
@@ -222,22 +332,22 @@
         ]
     },
     "postCombatAdvance": {
-        "text": "There is a crossroads before you. Which direction do you proceed?",
+        "text": "The Chasm's innards split ahead. Which direction do you proceed?",
         "back_sound": "/sounds/bkground.mp3",
         "next_state": [
             {
                 "type": "button",
-                "text": "North",
+                "text": "Ahead",
                 "next_state": "GenerateRoom",
                 "input": "N"
             },
             {
-                "text": "East",
+                "text": "Left",
                 "next_state": "GenerateRoom",
                 "input": "E"
             },
             {
-                "text": "West",
+                "text": "Right",
                 "next_state": "GenerateRoom",
                 "input": "W"
             }
@@ -274,17 +384,17 @@
             }
         ]
     },
-    "FleeAttempt":{
+    "FleeAttempt": {
         "text": "",
         "fleeFail": "The enemy blocks your exit.",
         "fleeSuccess": "You successfully escape.",
         "next_state": ""
     },
-    "AttackEnemy":{
+    "AttackEnemy": {
         "text": "",
         "next_state": ""
     },
-    "CombatTurn":{
+    "CombatTurn": {
         "text": "",
         "next_state": ""
     },
@@ -352,27 +462,27 @@
             {
                 "name": "Nothing",
                 "description": "The room is empty and quiet, naught for the dripping of mysterious fluids.",
-                "type": "Advance"
+                "type": "shop"
             },
             {
                 "name": "Stomach Chamber",
                 "description": "It's too late when you discover that this room serves as some sort of stomach for the Chasm.",
-                "type": "trap"
+                "type": "shop"
             },
             {
                 "name": "Doomsayer",
                 "description": "A figure adorned in teeth emerges from a sphincter in the wall.\n\"I know how the world will end. The Chasm is the key.\" the Doomsayer proclaims.\nWill you attempt to solve their riddle?",
-                "type": "doomsayer"
+                "type": "shop"
             },
             {
                 "name": "Monster",
                 "description": "A Chasm-dweller draws near. Its grotesque form nearly makes you vomit.",
-                "type": "StartCombat"
+                "type": "shop"
             },
             {
                 "name": "Monster2",
                 "description": "A creature emerges from the shadows. Its stench overwhelms your senses.",
-                "type": "StartCombat"
+                "type": "shop"
             },
             {
                 "name": "Merchant",
@@ -392,7 +502,7 @@
             {
                 "name": "Blood-Drenched Skeleton",
                 "description": "The shambling form of a once-person. Its skeletal frame is shiny with bright red viscera.",
-                "points": 3,
+                "points": 2,
                 "attack": "D4",
                 "modifier": 0,
                 "health": 6
@@ -400,7 +510,7 @@
             {
                 "name": "Chasm Cultist",
                 "description": "The cultist is draped in clothing stitched of flesh.\nThey whisper madly in a wet-sounding forbidden tongue, cursing your existence.",
-                "points": 3,
+                "points": 1,
                 "attack": "D4",
                 "modifier": 0,
                 "health": 6
@@ -416,7 +526,7 @@
             {
                 "name": "Amorphous Shame",
                 "description": "Its ambiguous gray form saddens you.",
-                "points": 4,
+                "points": 2,
                 "attack": "D6",
                 "modifier": 0,
                 "health": 8
@@ -424,7 +534,7 @@
             {
                 "name": "Corpse Basilisk",
                 "description": "The Chasm itself yearns for your end. You face all who have been consumed.",
-                "points": 15,
+                "points": 3,
                 "attack": "D6",
                 "modifier": 0,
                 "health": 11
@@ -432,7 +542,7 @@
             {
                 "name": "Macrobacterium",
                 "description": "A slime of ginormous bacterium. The single-celled organism craves violence.",
-                "points": 5,
+                "points": 2,
                 "attack": "D4",
                 "modifier": 0,
                 "health": 9
@@ -462,7 +572,22 @@
         ]
     },
     "items": {
-        "weapons": {
+        "Potion": {
+            "name": "Potion",
+            "description": "A small vial of healing liquid. Restores health by 5 points.",
+            "effect": {
+                "type": "heal",
+                "value": 5
+            }
+        },
+        "Rope": {
+            "name": "Rope",
+            "description": "A piece of rope used to aid in traps.",
+            "effect": {
+                "type": "escape"
+            }
+        },
+        "Weapons": {
             "Beinrýtingur": {
                 "roll": "D4",
                 "modifier": "1",

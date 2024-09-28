@@ -66,7 +66,7 @@
         #game-console {
             position: fixed;
             bottom: 35px;
-            right: 10px;
+            right: 20px;
             width: 450px;
             height: 250px;
             background-color: rgba(0, 0, 0, 0.8);
@@ -75,31 +75,77 @@
             font-family: monospace;
             font-size: 14px;
             overflow-y: auto;
-            border: 2px solid #757575;
+            border: 1px solid #757575;
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
         }
 
-        /* Custom scrollbar */
         #game-console::-webkit-scrollbar {
             width: 8px;
-            /* Width of the scrollbar */
         }
 
         #game-console::-webkit-scrollbar-thumb {
             background-color: rgba(155, 0, 0, 0.5);
-            /* Slightly transparent green */
             border-radius: 10px;
-            /* Rounded corners for a smooth look */
         }
 
         #game-console::-webkit-scrollbar-track {
             background: rgba(0, 0, 0, 0.2);
-            /* Subtle background for the scrollbar track */
         }
 
         #game-console::-webkit-scrollbar-thumb:hover {
             background-color: rgba(0, 0, 0, 0.8);
-            /* Brighter green when hovered */
+        }
+
+        #inventory_window {
+            position: fixed;
+            top: 175px;
+            right: 20px;
+            width: 200px;
+            height: 420px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px;
+            border: 1px solid #757575;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+            font-family: 'Courier New', Courier, monospace;
+            overflow-y: auto;
+        }
+
+        #inventory_window h2 {
+            color: rgb(255, 255, 255);
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        #inventory_content .inventory-item {
+            /* Change from p to .inventory-item */
+            color: white;
+            cursor: pointer;
+            display: block;
+            /* Each item on its own line */
+            transition: background-color 0.3s ease;
+            line-height: 1.5;
+            padding: 5px;
+            /* Add some padding for better clickability */
+        }
+
+        #inventory_content .inventory-item:hover {
+            /* Change from p:hover to .inventory-item:hover */
+            background-color: grey;
+            color: white;
+        }
+
+        #inventory_window::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #inventory_window::-webkit-scrollbar-thumb {
+            background-color: rgba(155, 0, 0, 0.5);
+            border-radius: 10px;
+        }
+
+        #inventory_window::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
         }
     </style>
 </head>
@@ -118,6 +164,10 @@
 
     <div id="game-console"></div>
 
+    <div id="inventory_window">
+        <div id="inventory_content"></div>
+    </div>
+
     <div id="player_stats"
         style="position: absolute; top: 20px; right: 20px; background-color: rgba(0, 0, 0, 0.7); padding: 10px; border: 1px solid #757575; color: white; font-family: 'Courier New', Courier, monospace;">
         <div id="stats_content"></div>
@@ -132,6 +182,7 @@
         var our_game_data = null;
         var bk_audio = new Audio();
         let typingInterval;
+        const textSpeed = 35;
 
         //Player stats are static and not read from game_def
         const player = {
@@ -143,7 +194,9 @@
             armor: null,
             points: 0,
             items: [],
-            scrolls: []
+            scrolls: [],
+            storyIndex: 0,
+            roomsVisited: 0
         };
 
         let currentEnemy = {};
@@ -157,12 +210,19 @@
             <strong>Silver:</strong> ${player.silver}<br>
             <strong>Weapon:</strong> ${player.weapon.name} (Attack: ${player.weapon.roll}${modifierDisplay})<br>
             <strong>Armor:</strong> ${player.armor ? player.armor : 'None'}<br>
-            <strong>Points:</strong> ${player.points}<br>
-            <strong>Items:</strong> ${player.items.length}/3<br>
-            <strong>Scrolls:</strong> ${player.scrolls.length}/3`;
+            <strong>Points:</strong> ${player.points}<br>`;
             $('#stats_content').html(statsContent);
 
-
+            if (player.roomsVisited >= 12) {
+                player.roomsVisited = 0;
+                player.maxHealth += 5;
+                player.health += 5;
+                gameLog('Kargunt has leveled up! Max health increased.')
+                let levelUp = new Audio('/sounds/levelup.mp3');
+                levelUp.play();
+                flashScreen('yellow');
+                updateStats();
+            }
 
             if (player.points >= 15) {
                 player.points = 0;
@@ -178,6 +238,52 @@
             if (player.health > player.maxHealth) {
                 player.health = player.maxHealth;
                 updateStats();
+            }
+        }
+
+        function updateInventory() {
+            console.log("Inventory updated", player.items);
+
+            let inventoryContent = '';
+
+            if (player.items.length === 0) {
+                inventoryContent = '';
+            } else {
+                player.items.forEach((item, index) => {
+                    inventoryContent += `<div class="inventory-item" data-index="${index}">${item.name}</div>`;
+                });
+            }
+
+            $('#inventory_content').html(inventoryContent);
+
+            $('.inventory-item').off('click').on('click', function () {
+                const itemIndex = $(this).data('index');
+                useItem(itemIndex);
+            });
+        }
+
+        function useItem(index) {
+            console.log('Using item!');
+
+            const item = player.items[index];
+
+            if (item && item.name === "Potion") {
+                player.health += 5;
+                healFX();
+                player.items.splice(index, 1);
+                updateInventory();
+                updateStats();
+            }
+        }
+
+        function removeItem(itemName) {
+            const itemIndex = player.items.findIndex(item => item.name === itemName);
+            if (itemIndex > -1) {
+                player.items.splice(itemIndex, 1); // Remove the item from the inventory
+                updateInventory(); // Update the inventory display
+                console.log(`${itemName} has been removed from the inventory.`);
+            } else {
+                console.log(`${itemName} not found in the inventory.`);
             }
         }
 
@@ -300,8 +406,44 @@
             const enemyName = currentEnemy.name;
 
             const fullDescription = `${enemyName} approaches.\n\n${enemyDesc}`;
-            typeText($('#my_text'), fullDescription, 50);
+            typeText($('#my_text'), fullDescription, textSpeed);
 
+        }
+
+        function roomLoot() {
+            let potion = our_game_data.items.Potion;
+            let rope = our_game_data.items.Rope;
+            lootRoll = rollD6();
+            switch (lootRoll) {
+                case 1:
+                    gameLog('Amniotic fluid seeps from the walls.');
+                    player.health += 3;
+                    gameLog('Kargunt recovers 3 HP.');
+                    healFX();
+                    updateStats();
+                    break;
+                case 2:
+                    player.items.push(rope);
+                    updateInventory();
+                    console.log('Gathered rope');
+                    gameLog('Kargunt finds a severed, thick, rope-like artery on the ground.\n+1 Rope');
+                    updateStats();
+                    break;
+                case 3:
+                    player.items.push(potion);
+                    updateInventory();
+                    console.log('Gathered potion');
+                    gameLog('Kargunt finds a vial of mysterious fluid embedded in the floor.\n+1 Potion');
+                    break;
+                case 4:
+                    break;
+                case 5:
+                    break;
+                case 6:
+                    break;
+                default:
+                    console.log("No case matched");
+            }
         }
 
         function generateRoom() {
@@ -330,15 +472,18 @@
 
             // Update the text to display the room and event
             const fullDescription = `You enter ${roomDescription}\n\n${eventDescription}`;
-            typeText($('#my_text'), fullDescription, 50);  // Let the text type out progressively
+            typeText($('#my_text'), fullDescription, textSpeed);  // Let the text type out progressively
 
             renderOptions([{
                 text: "Proceed",
                 next_state: our_game_data['HandleEvent']['next_state'] // Transition based on the event type
             }]);
+            player.roomsVisited += 1;
+            console.log('Player has visited ', player.roomsVisited, 'rooms.')
         }
 
         function visit_state(state) {
+            updateStats();
             clearText();
             let textElement = $('#my_text');
 
@@ -384,7 +529,9 @@
                 player.armor = null;
                 player.points = 0;
                 player.items = [];
-                player.scrolls = [];
+                player.roomsVisited = 0;
+                updateInventory();
+                updateStats();
             }
 
             if (current_state === 'gstart') {
@@ -408,13 +555,40 @@
                 console.log("Entered shop");
             }
 
+            if (current_state === 'buyPotion') {
+                let potion = our_game_data.items.Potion;
+                if (player.silver < 4) {
+                    our_game_data[current_state]["text"] = "\"You seem to be lacking in coin, chasmwalker. Come back when you have more.\" the Carrion Merchant spits at you."
+                } else {
+                    let buySound = new Audio('/sounds/paymoney.mp3');
+                    buySound.play();
+                    player.items.push(potion);
+                    player.silver -= 4;
+                    updateInventory();
+                    updateStats();
+                    gameLog('Kargunt purchased a potion.');
+                }
+            }
+
+            if (current_state === 'Advance') {
+                roomLoot();
+            }
+
             if (current_state === 'trapCheck') {
                 console.log("Trap triggered!");
+                const ropeIndex = player.items.indexOf("Rope");
                 gameLog('Kargunt has activated a trap.');
                 dodgeRoll = rollD6();
+
+                if (player.items.some(item => item.name === "Rope")) {
+                    gameLog("Kargunt uses the Rope to escape the trap!");
+                    removeItem("Rope");
+                    dodgeRoll += 4;
+                }
+
                 if (dodgeRoll <= 3) {
                     const fullDescription = `You miss the chunk of Chasm-flesh you were hoping to land on. Your feet dip into the bile.\nIt burns.`;
-                    typeText($('#my_text'), fullDescription, 50, function () { });
+                    typeText($('#my_text'), fullDescription, textSpeed, function () { });
                     gameLog('Kargunt is caught by the trap!');
                     dam = rollD6();
                     player.health = player.health - dam;
@@ -435,7 +609,7 @@
                     return;
                 } else {
                     const fullDescription = `You deftly avoid the sickly fluid, landing to safety on a raised chunk of Chasm-flesh.`;
-                    typeText($('#my_text'), fullDescription, 50, function () { });
+                    typeText($('#my_text'), fullDescription, textSpeed, function () { });
                     gameLog('Kargunt avoids the trap!')
                     renderOptions([
                         {
@@ -451,7 +625,7 @@
                 const riddlePool = our_game_data.pools.riddles;
                 const randomRiddle = riddlePool[Math.floor(Math.random() * riddlePool.length)];
                 const riddleText = randomRiddle.text;
-                typeText($('#my_text'), riddleText, 50);
+                typeText($('#my_text'), riddleText, textSpeed);
             }
 
             if (current_state === 'riddleCheck') {
@@ -460,7 +634,7 @@
                 riddleRoll = rollD6();
                 if (riddleRoll % 2 == 0) {
                     const fullDescription = `The riddle nearly shatters your mind. \nThe Doomsayer breaks out into maniacal laughter before melting into a puddle of blood.`;
-                    typeText($('#my_text'), fullDescription, 50, function () { });
+                    typeText($('#my_text'), fullDescription, textSpeed, function () { });
                     gameLog('Kargunt failed the riddle.')
                     dam = rollD6();
                     player.health = player.health - dam;
@@ -481,7 +655,7 @@
                     return;
                 } else {
                     const fullDescription = `You solve the Doomsayer's riddle. Your memory of the answer is taken as payment.\nIn return, the Doomsayer offers you a boon.`;
-                    typeText($('#my_text'), fullDescription, 50, function () { });
+                    typeText($('#my_text'), fullDescription, textSpeed, function () { });
                     gameLog('Kargunt solved the riddle!')
                     renderOptions([
                         {
@@ -501,6 +675,10 @@
                 }
             }
 
+            if (current_state === 'HandleEvent') {
+                roomLoot();
+            }
+
             if (current_state === 'vitality') {
                 player.health += 5;
                 healFX();
@@ -510,7 +688,10 @@
 
             if (current_state === 'wealth') {
                 player.silver += 10;
+                let getSilver = new Audio('/sounds/getmoney.mp3');
+                getSilver.play();
                 gameLog('Kargunt gains 10 silver.');
+
                 updateStats();
             }
 
@@ -532,7 +713,7 @@
             if (current_state === 'combat') {
                 const enemyName = currentEnemy.name;
                 const fullDescription = `${enemyName} awaits your next move.`;
-                typeText($('#my_text'), fullDescription, 50, function () { });
+                typeText($('#my_text'), fullDescription, textSpeed, function () { });
                 renderOptions([
                     {
                         text: "ENGAGE",
@@ -550,7 +731,7 @@
                 console.log("Player's combat turn.");
                 const enemyName = currentEnemy.name;
                 const fullDescription = `You lunge to strike ${enemyName}.`;
-                typeText($('#my_text'), fullDescription, 50, function () { });
+                typeText($('#my_text'), fullDescription, textSpeed, function () { });
                 renderOptions([{
                     text: "ATTACK",
                     next_state: 'AttackEnemy'
@@ -563,35 +744,38 @@
             }
 
             if (current_state === 'Victory') {
+                let potion = our_game_data.items.Potion;
                 gameLog('Kargunt has slain ', currentEnemy.name, "!");
                 const enemyName = currentEnemy.name;
                 const enemyPoints = currentEnemy.points;
                 const fullDescription = `${enemyName} lies dead at your feet. Absorbed ${enemyPoints} points.`;
                 player.points = player.points + enemyPoints;
                 updateStats();
-                typeText($('#my_text'), fullDescription, 50, function () { });
+                typeText($('#my_text'), fullDescription, textSpeed, function () { });
 
                 lootRoll = rollD6();
 
                 switch (lootRoll) {
                     case 1:
-                        gameLog('Kargunt looted a vial.');
+                        gameLog('Kargunt takes a moment to rest.');
                         player.health += 5;
                         gameLog('Kargunt recovers 5 HP.');
                         healFX();
+                        updateStats();
                         break;
                     case 2:
-                        gameLog('Kargunt fashions some protection from ', currentEnemy.name,"'s corpse.")
-                        player.armor = "D4"
-                        updateStats();
+                        player.items.push(potion);
+                        updateInventory();
+                        console.log('Gathered potion');
+                        gameLog('Kargunt finds a vial of mysterious fluid embedded in the floor.\n+1 Potion');
                         break;
                     case 3:
-                        gameLog('A scroll was inscribed onto the', currentEnemy.name,"'s flesh. Kargunt carves it free.");
-                        updateStats();
+                        player.silver += 5;
+                        let getSilver = new Audio('/sounds/getmoney.mp3');
+                        getSilver.play();
+                        gameLog('Kargunt recovers 5 silver from the monster\'s corpse.');
                         break;
                     case 4:
-                        gameLog('Kargunt fashions the', currentEnemy.name,"'s sinew into rope.");
-                        updateStats();
                         break;
                     case 5:
                         break;
@@ -616,7 +800,7 @@
                 if (attackRoll <= currentEnemy.points) {
                     gameLog('Kargunt misses!');
                     const fullDescription = `${enemyName} dodges your attack! It takes the opportunity to strike.`;
-                    typeText($('#my_text'), fullDescription, 50, function () { });
+                    typeText($('#my_text'), fullDescription, textSpeed, function () { });
                     if (currentEnemy.attack == "D4") {
                         enemyDamage = rollD4();
                     }
@@ -642,7 +826,7 @@
                 } else {
                     gameLog('Kargunt hits!');
                     const fullDescription = `${enemyName} lets out a cry in pain as your weapon connects with its body.`;
-                    typeText($('#my_text'), fullDescription, 50, function () { });
+                    typeText($('#my_text'), fullDescription, textSpeed, function () { });
                     damageRoll = rollD4();
                     if (player.weapon.attackRoll == "D4") {
                         damageRoll = rollD4();
@@ -669,7 +853,7 @@
                 }
 
                 const fullDescription = `You lunge to strike ${enemyName}.`;
-                typeText($('#my_text'), fullDescription, 50, function () { });
+                typeText($('#my_text'), fullDescription, textSpeed, function () { });
                 renderOptions([{
                     text: "ATTACK",
                     next_state: 'AttackEnemy'
@@ -692,7 +876,7 @@
                     const enemyName = currentEnemy.name;
                     const fullDescription = `You barely escape ${enemyName} with your life.`;
 
-                    typeText($('#my_text'), fullDescription, 50, function () { });
+                    typeText($('#my_text'), fullDescription, textSpeed, function () { });
 
                     renderOptions([{
                         text: "Continue",
@@ -725,7 +909,7 @@
                         }]);
                     }
 
-                    typeText($('#my_text'), fullDescription, 50, function () { });
+                    typeText($('#my_text'), fullDescription, textSpeed, function () { });
 
                     renderOptions([{
                         text: "Continue",
@@ -742,7 +926,7 @@
                 if (stateText) {
                     console.log(our_game_data[current_state['text']])
                     stateText = stateText.replace(/<[^>]*>/g, '');
-                    let typingSpeed = 50;
+                    let typingSpeed = textSpeed;
                     typeText(textElement, stateText, typingSpeed, function () {
                         showAsciiArt();
                     });
