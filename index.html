@@ -213,6 +213,7 @@
             <strong>Points:</strong> ${player.points}<br>`;
             $('#stats_content').html(statsContent);
 
+            //When player visits 12 rooms they level up
             if (player.roomsVisited >= 12) {
                 player.roomsVisited = 0;
                 player.maxHealth += 5;
@@ -224,6 +225,7 @@
                 updateStats();
             }
 
+            //When player gathers 15 points they level up
             if (player.points >= 15) {
                 player.points = 0;
                 player.maxHealth += 5;
@@ -235,12 +237,14 @@
                 updateStats();
             }
 
+            //Prevents health from exceeding maximum
             if (player.health > player.maxHealth) {
                 player.health = player.maxHealth;
                 updateStats();
             }
         }
 
+        //Update inventory display
         function updateInventory() {
             console.log("Inventory updated", player.items);
 
@@ -256,31 +260,62 @@
 
             $('#inventory_content').html(inventoryContent);
 
+            //Triggers item usage when item is clicked (if item has an active usage)
             $('.inventory-item').off('click').on('click', function () {
                 const itemIndex = $(this).data('index');
                 useItem(itemIndex);
             });
         }
 
+        //Logic for using consummable items
         function useItem(index) {
             console.log('Using item!');
 
             const item = player.items[index];
 
+            //Potions restore 5 HP
             if (item && item.name === "Potion") {
                 player.health += 5;
                 healFX();
-                player.items.splice(index, 1);
+                player.items.splice(index, 1); //Remove the item from the inventory
+                updateInventory();
+                updateStats();
+            }
+
+            if (item && item.name === "Rust-Serrated Longsword") {
+                let rustSword = our_game_data.items.Weapons["Rust-Serrated Longsword"];
+                player.weapon = { name: 'Rust-Serrated Longsword', roll: 'D4', modifier: 2 };
+                player.items.splice(index, 1); //Remove the item from the inventory
+                equipFX();
+                updateInventory();
+                updateStats();
+            }
+
+            if (item && item.name === "Líkkrossari") {
+                let rustSword = our_game_data.items.Weapons["Líkkrossari"];
+                player.weapon = { name: 'Líkkrossari', roll: 'D6', modifier: 1 };
+                player.items.splice(index, 1); //Remove the item from the inventory
+                equipFX();
+                updateInventory();
+                updateStats();
+            }
+
+            if (item && item.name === "Mighty Zweihander") {
+                let rustSword = our_game_data.items.Weapons["Mighty Zweihander"];
+                player.weapon = { name: 'Mighty Zweihander', roll: 'D6', modifier: 2 };
+                player.items.splice(index, 1); //Remove the item from the inventory
+                equipFX();
                 updateInventory();
                 updateStats();
             }
         }
 
+        //Remove item from player inventory
         function removeItem(itemName) {
             const itemIndex = player.items.findIndex(item => item.name === itemName);
             if (itemIndex > -1) {
-                player.items.splice(itemIndex, 1); // Remove the item from the inventory
-                updateInventory(); // Update the inventory display
+                player.items.splice(itemIndex, 1); //Remove the item from the inventory
+                updateInventory(); //Update the inventory display
                 console.log(`${itemName} has been removed from the inventory.`);
             } else {
                 console.log(`${itemName} not found in the inventory.`);
@@ -323,7 +358,7 @@
                 }
             };
 
-            document.addEventListener('keydown', handleKeyDown);
+            document.addEventListener('keydown', handleKeyDown); //Skip text when pressing enter
 
             const type = () => {
                 if (i < text.length) {
@@ -358,58 +393,76 @@
             }
         }
 
+        //FX called whenever player heals
         function healFX() {
             let healAudio = new Audio('/sounds/heal.mp3');
             healAudio.play();
             flashScreen('green');
         }
 
+        function equipFX() {
+            let equipAudio = new Audio('/sounds/equip.mp3');
+            equipAudio.play();
+        }
+
+        //FX called whenever player takes damage
         function hurtFX() {
             let hurtAudio = new Audio('/sounds/takedamage.mp3');
             hurtAudio.play();
             flashScreen('red');
         }
 
+        function buyFX() {
+            let buySound = new Audio('/sounds/paymoney.mp3');
+            buySound.play();
+        }
+
+        //FX called whenever player deals damage
         function damageFX() {
             let damageAudio = new Audio('/sounds/dealdamage.mp3');
             damageAudio.play();
             flashScreen('white');
         }
 
-
+        //Rolls a 4-sided die
         function rollD4() {
             console.log("Rolling d4...");
             roll = Math.floor(Math.random() * 4) + 1;
             console.log("Rolled a ", roll);
             gameLog(`Rolled a ${roll}.`);
 
-            return roll; // Rolls a d4
+            return roll;
         }
 
+        //Rolls a 6-sided die
         function rollD6() {
             console.log("Rolling d6...");
             roll = Math.floor(Math.random() * 6) + 1;
             console.log("Rolled a ", roll);
             gameLog(`Rolled a ${roll}.`);
 
-            return roll; // Rolls a d6
+            return roll;
         }
 
+        //Selects enemy for usage in combat encounters
         function selectEnemy() {
             const enemies = our_game_data.pools.enemies;
             const randomIndex = Math.floor(Math.random() * enemies.length);
             currentEnemy = enemies[randomIndex];
 
-            console.log("Facing Enemy:", currentEnemy.name);
-
             const enemyDesc = currentEnemy.description;
             const enemyName = currentEnemy.name;
+            currentEnemy.health = currentEnemy.health; //Ensure enemy has the right amount of health
+
+            console.log("Facing Enemy:", currentEnemy.name);
+            console.log("Starting Health:", currentEnemy.health);
 
             const fullDescription = `${enemyName} approaches.\n\n${enemyDesc}`;
             typeText($('#my_text'), fullDescription, textSpeed);
 
         }
 
+        //Passive loot gathering that triggers on entering certain rooms
         function roomLoot() {
             let potion = our_game_data.items.Potion;
             let rope = our_game_data.items.Rope;
@@ -426,14 +479,14 @@
                     player.items.push(rope);
                     updateInventory();
                     console.log('Gathered rope');
-                    gameLog('Kargunt finds a severed, thick, rope-like artery on the ground.\n+1 Rope');
+                    gameLog('Kargunt finds a severed, thick, rope-like artery on the ground.');
                     updateStats();
                     break;
                 case 3:
                     player.items.push(potion);
                     updateInventory();
                     console.log('Gathered potion');
-                    gameLog('Kargunt finds a vial of mysterious fluid embedded in the floor.\n+1 Potion');
+                    gameLog('Kargunt finds a vial of mysterious fluid embedded in the floor.');
                     break;
                 case 4:
                     break;
@@ -446,6 +499,8 @@
             }
         }
 
+        //Randomly generates a room by combining a room description and an event description. 
+        //The chosen event description dictates what the next state is.
         function generateRoom() {
             console.log("Generating Room...");
             const roomsPool = our_game_data.pools.rooms;
@@ -462,17 +517,17 @@
 
             $('#my_options').html('');
 
-            // Set current state to HandleEvent after generating the room and event
+            // et current state to HandleEvent after generating the room and event
             current_state = 'HandleEvent';
             console.log("Current state is: ", current_state);
 
             our_game_data['HandleEvent']['text'] = eventDescription;
-            // Save the event type for the next state transition after the player clicks "Proceed"
+            //Save the event type for the next state transition after the player clicks "Proceed"
             our_game_data['HandleEvent']['next_state'] = randomEvent.type;
 
             // Update the text to display the room and event
             const fullDescription = `You enter ${roomDescription}\n\n${eventDescription}`;
-            typeText($('#my_text'), fullDescription, textSpeed);  // Let the text type out progressively
+            typeText($('#my_text'), fullDescription, textSpeed);
 
             renderOptions([{
                 text: "Proceed",
@@ -487,7 +542,7 @@
             clearText();
             let textElement = $('#my_text');
 
-            // Log the current state and game data
+            //Log the current state and game data
             console.log("Visiting State:", current_state);
             console.log("Game Data:", our_game_data);
 
@@ -510,16 +565,15 @@
                         }
                     });
                 }
-            } else {
-                console.log("No back_sound defined for this state.");
             }
 
-            // Check if the current state exists in the game data
+            //Check if the current state exists in the game data
             if (!our_game_data[current_state]) {
                 console.error("State does not exist in game data:", current_state);
-                return; // Exit early to prevent further errors
+                return; //Exit early to prevent further errors
             }
 
+            //Resets players stats
             if (current_state === 'start') {
                 player.name = "Kargunt";
                 player.health = 15;
@@ -531,7 +585,6 @@
                 player.items = [];
                 player.roomsVisited = 0;
                 updateInventory();
-                updateStats();
             }
 
             if (current_state === 'gstart') {
@@ -540,7 +593,8 @@
 
             if (current_state === 'GetWeap') {
                 player.weapon = { name: 'Beinrýtingur', roll: 'D4', modifier: 1 };
-                gameLog('+1 Beinrýtingur');
+                gameLog('Kargunt has acquired a Beinrýtingur.');
+                equipFX();
                 updateStats();
             }
 
@@ -548,11 +602,7 @@
                 generateRoom();
                 let options = our_game_data[current_state]['next_state'];
                 renderOptions(options);
-                return; // Exit early as we've already handled the room generation
-            }
-
-            if (current_state === 'shop') {
-                console.log("Entered shop");
+                return;
             }
 
             if (current_state === 'buyPotion') {
@@ -560,13 +610,62 @@
                 if (player.silver < 4) {
                     our_game_data[current_state]["text"] = "\"You seem to be lacking in coin, chasmwalker. Come back when you have more.\" the Carrion Merchant spits at you."
                 } else {
-                    let buySound = new Audio('/sounds/paymoney.mp3');
-                    buySound.play();
+                    buyFX();
                     player.items.push(potion);
                     player.silver -= 4;
                     updateInventory();
                     updateStats();
                     gameLog('Kargunt purchased a potion.');
+                }
+            }
+
+            if (current_state === 'buyRope') {
+                let rope = our_game_data.items.Rope;
+                if (player.silver < 4) {
+                    our_game_data[current_state]["text"] = "\"You seem to be lacking in coin, chasmwalker. Come back when you have more.\" the Carrion Merchant spits at you."
+                } else {
+                    buyFX();
+                    player.items.push(rope);
+                    player.silver -= 5;
+                    updateInventory();
+                    updateStats();
+                    gameLog('Kargunt purchased a rope.');
+                }
+            }
+
+            if (current_state == 'buySword') {
+                if (player.silver < 12) {
+                    our_game_data[current_state]["text"] = "\"You seem to be lacking in coin, chasmwalker. Come back when you have more.\" the Carrion Merchant spits at you."
+                } else {
+                    let rustSword = our_game_data.items.Weapons["Rust-Serrated Longsword"];
+                    player.items.push(rustSword);
+                    buyFX();
+                    updateInventory();
+                }
+
+            }
+
+            if (current_state == 'buyMace') {
+                if (player.silver < 16) {
+                    our_game_data[current_state]["text"] = "\"You seem to be lacking in coin, chasmwalker. Come back when you have more.\" the Carrion Merchant spits at you."
+                }
+                else {
+                    let corpseCrusher = our_game_data.items.Weapons["Líkkrossari"];
+                    player.items.push(corpseCrusher);
+                    buyFX();
+                    updateInventory();
+                }
+
+            }
+
+            if (current_state == 'buyZwei') {
+                if (player.silver < 25) {
+                    our_game_data[current_state]["text"] = "\"You seem to be lacking in coin, chasmwalker. Come back when you have more.\" the Carrion Merchant spits at you."
+                } else {
+                    let mightyZwei = our_game_data.items.Weapons["Mighty Zweihander"];
+                    player.items.push(mightyZwei);
+                    buyFX();
+                    updateInventory();
                 }
             }
 
@@ -675,10 +774,6 @@
                 }
             }
 
-            if (current_state === 'HandleEvent') {
-                roomLoot();
-            }
-
             if (current_state === 'vitality') {
                 player.health += 5;
                 healFX();
@@ -767,7 +862,7 @@
                         player.items.push(potion);
                         updateInventory();
                         console.log('Gathered potion');
-                        gameLog('Kargunt finds a vial of mysterious fluid embedded in the floor.\n+1 Potion');
+                        gameLog('Kargunt finds a vial of mysterious fluid embedded in the floor.');
                         break;
                     case 3:
                         player.silver += 5;
@@ -910,11 +1005,6 @@
                     }
 
                     typeText($('#my_text'), fullDescription, textSpeed, function () { });
-
-                    renderOptions([{
-                        text: "Continue",
-                        next_state: current_state
-                    }]);
 
                     return;
                 }

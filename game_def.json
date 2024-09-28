@@ -122,7 +122,7 @@
     },
     "shop": {
         "back_sound": "/sounds/shop.mp3",
-        "text": "The Carrion Merchant spreads its wares in front of you. There is a selection of red-tinged vials, sinew-woven ropes,\narmor carved of hardened flesh, a rusty sword, a bloodied Corpse Crusher, and a pristine Zweihander.",
+        "text": "The Carrion Merchant spreads its wares in front of you. There is a selection of yellow-tinged vials, sinew-woven ropes,\narmor carved of hardened flesh, a rusty sword, a bloodied Corpse Crusher, and a pristine Zweihander.",
         "next_state": [
             {
                 "type": "button",
@@ -138,11 +138,11 @@
                 "next_state": "buyArmor"
             },
             {
-                "text": "Sword (D6+1) | 12s",
+                "text": "Rust-Serrated Longsword (D6+1) | 12s",
                 "next_state": "buySword"
             },
             {
-                "text": "Líkkrossari (D6) | 9s",
+                "text": "Líkkrossari (D6) | 16s",
                 "next_state": "buyMace"
             },
             {
@@ -156,7 +156,7 @@
         ]
     },
     "shopNoMusic": {
-        "text": "The Carrion Merchant spreads its wares in front of you. There is a selection of red-tinged vials, sinew-woven ropes,\narmor carved of hardened flesh, a rusty sword, a bloodied Corpse Crusher, and a pristine Zweihander.",
+        "text": "The Carrion Merchant spreads its wares in front of you. There is a selection of yellow-tinged vials, sinew-woven ropes,\narmor carved of hardened flesh, a rusty sword, a bloodied Corpse Crusher, and a pristine Zweihander.",
         "next_state": [
             {
                 "type": "button",
@@ -462,27 +462,27 @@
             {
                 "name": "Nothing",
                 "description": "The room is empty and quiet, naught for the dripping of mysterious fluids.",
-                "type": "shop"
+                "type": "Advance"
             },
             {
                 "name": "Stomach Chamber",
                 "description": "It's too late when you discover that this room serves as some sort of stomach for the Chasm.",
-                "type": "shop"
+                "type": "trap"
             },
             {
                 "name": "Doomsayer",
                 "description": "A figure adorned in teeth emerges from a sphincter in the wall.\n\"I know how the world will end. The Chasm is the key.\" the Doomsayer proclaims.\nWill you attempt to solve their riddle?",
-                "type": "shop"
+                "type": "doomsayer"
             },
             {
                 "name": "Monster",
                 "description": "A Chasm-dweller draws near. Its grotesque form nearly makes you vomit.",
-                "type": "shop"
+                "type": "StartCombat"
             },
             {
                 "name": "Monster2",
                 "description": "A creature emerges from the shadows. Its stench overwhelms your senses.",
-                "type": "shop"
+                "type": "StartCombat"
             },
             {
                 "name": "Merchant",
@@ -597,6 +597,24 @@
                 "attack": "d6",
                 "modifier": "0",
                 "description": "The long talon that extends up the forearm of Crowmeat."
+            },
+            "Rust-Serrated Longsword":
+            {
+                "name":  "Rust-Serrated Longsword",
+                "attack": "d4",
+                "modifier": "2"
+            },
+            "Líkkrossari":
+            {
+                "name": "Líkkrossari",
+                "attack": "d6",
+                "modifier": "1"
+            },
+            "Mighty Zweihander":
+            {
+                "name": "Mighty Zweihander",
+                "attack": "d6",
+                "modifier": "2"
             }
         }
     }
