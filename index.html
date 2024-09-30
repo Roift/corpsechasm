@@ -190,7 +190,7 @@
             health: 15,
             maxHealth: 15,
             level: 1,
-            silver: 15,
+            silver: 5,
             weapon: { name: "Unarmed", roll: "D4", modifier: -1 },
             armor: null,
             points: 0,
@@ -279,6 +279,7 @@
                 let rustSword = our_game_data.items.Weapons["Rust-Serrated Longsword"];
                 player.weapon = { name: 'Rust-Serrated Longsword', roll: 'D4', modifier: 2 };
                 player.items.splice(index, 1); //Remove the item from the inventory
+                gameLog('Kargunt equipped Rust-Serrated Longsword.');
                 equipFX();
                 updateInventory();
                 updateStats();
@@ -288,6 +289,7 @@
                 let armor = our_game_data.items.Armor["Fleshmail"];
                 player.armor = 'D4';
                 player.items.splice(index, 1); //Remove the item from the inventory
+                gameLog('Kargunt equipped Fleshmail.');
                 equipFX();
                 updateInventory();
                 updateStats();
@@ -297,6 +299,7 @@
                 let rustSword = our_game_data.items.Weapons["Líkkrossari"];
                 player.weapon = { name: 'Líkkrossari', roll: 'D6', modifier: 1 };
                 player.items.splice(index, 1); //Remove the item from the inventory
+                gameLog('Kargunt equipped Líkkrossari.');
                 equipFX();
                 updateInventory();
                 updateStats();
@@ -306,6 +309,7 @@
                 let rustSword = our_game_data.items.Weapons["Mighty Zweihander"];
                 player.weapon = { name: 'Mighty Zweihander', roll: 'D6', modifier: 2 };
                 player.items.splice(index, 1); //Remove the item from the inventory
+                gameLog('Kargunt equipped Mighty Zweihander.');
                 equipFX();
                 updateInventory();
                 updateStats();
@@ -452,7 +456,7 @@
                 const enemies = our_game_data.pools.weakEnemies;
                 const randomIndex = Math.floor(Math.random() * enemies.length);
                 currentEnemy = enemies[randomIndex];
-            } else if (rollD6() <= 2) {
+            } else if (rollD6() <= 4) {
                 const enemies = our_game_data.pools.weakEnemies;
                 const randomIndex = Math.floor(Math.random() * enemies.length);
                 currentEnemy = enemies[randomIndex];
@@ -486,11 +490,11 @@
                     gameLog('Kargunt finds a vial of mysterious fluid embedded in the floor.');
                     break;
                 case 2:
-                    getSilver = rollD6();
+                    randSilver = rollD6();
                     let getSilver = new Audio('/sounds/getmoney.mp3');
                     getSilver.play();
-                    player.silver += getSilver;
-                    gameLog('Kargunt picks up', getSilver, 'teeth off the floor.');
+                    player.silver += randSilver;
+                    gameLog('Kargunt picks up', randSilver, 'silver off the floor.');
                     updateStats;
                     break;
                 case 3:
@@ -604,7 +608,7 @@
                 player.health = 15;
                 player.level = 1;
                 player.maxHealth = 15;
-                player.silver = 15;
+                player.silver = 5;
                 player.weapon = { name: 'Unarmed', roll: 'D4', modifier: -1 };
                 player.armor = null;
                 player.points = 0;
@@ -621,7 +625,7 @@
 
             if (current_state === 'GetWeap') {
                 player.weapon = { name: 'Beinrýtingur', roll: 'D4', modifier: 1 };
-                gameLog('Kargunt has acquired a Beinrýtingur.');
+                gameLog('Kargunt has equipped Beinrýtingur.');
                 equipFX();
                 updateStats();
             }
@@ -911,7 +915,7 @@
 
                 switch (lootRoll) {
                     case 1:
-                        healthRegain = rollD4()
+                        healthRegain = rollD6()
                         gameLog('Kargunt takes a moment to rest.');
                         gameLog('Kargunt recovers', healthRegain, 'HP.');
                         healFX();
@@ -920,20 +924,25 @@
                     case 2:
                         break;
                     case 3:
-                        player.silver += 5;
-                        getSilver.play();
-                        gameLog('Kargunt recovers 5 silver from the monster\'s corpse.');
-                        break;
-                    case 4:
-                        player.silver += 3;
-                        getSilver.play();
-                        gameLog('Kargunt recovers 3 silver from the monster\'s corpse.');
-                        break;
-                    case 5:
-                        const randSilver = rollD6();
+                        randSilver = rollD6() + 3;
                         player.silver += randSilver;
                         getSilver.play();
                         gameLog('Kargunt recovers', randSilver, 'silver from the monster\'s corpse.');
+                        updateStats();
+                        break;
+                    case 4:
+                        randSilver = rollD6() + 3;
+                        player.silver += randSilver;
+                        getSilver.play();
+                        gameLog('Kargunt recovers', randSilver, 'silver from the monster\'s corpse.');
+                        updateStats();
+                        break;
+                    case 5:
+                        randSilver = rollD6();
+                        player.silver += randSilver;
+                        getSilver.play();
+                        gameLog('Kargunt recovers', randSilver, 'silver from the monster\'s corpse.');
+                        updateStats();
                         break;
                     case 6:
                         break;

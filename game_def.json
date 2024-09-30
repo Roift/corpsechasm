@@ -126,11 +126,11 @@
         "next_state": [
             {
                 "type": "button",
-                "text": "Potion (heal D6) | 6s",
+                "text": "Potion (Recover 5 HP) | 6s",
                 "next_state": "buyPotion"
             },
             {
-                "text": "Rope (+1 Trap Roll) | 5s",
+                "text": "Rope (Succeed Trap Rolls) | 5s",
                 "next_state": "buyRope"
             },
             {
@@ -138,15 +138,15 @@
                 "next_state": "buyArmor"
             },
             {
-                "text": "Rust-Serrated Longsword (D6) | 18s",
+                "text": "Rust-Serrated Longsword (D4+2) | 18s",
                 "next_state": "buySword"
             },
             {
-                "text": "Líkkrossari (D6+1) | 27s",
+                "text": "Líkkrossari (D6+2) | 27s",
                 "next_state": "buyMace"
             },
             {
-                "text": "Mighty Zweihander (D6+2) | 40s",
+                "text": "Mighty Zweihander (D6+4) | 40s",
                 "next_state": "buyZwei"
             },
             {
@@ -588,8 +588,8 @@
             {
                 "name": "Amorphous Shame",
                 "description": "The creature's grey form warps and shifts before your perception.\nYet no matter what form it takes, it retains rows and rows of razor sharp teeth.",
-                "points": 4,
-                "attack": "D6",
+                "points": 3,
+                "attack": "D4",
                 "modifier": 2,
                 "health": 8,
                 "maxHealth": 8
