@@ -762,6 +762,7 @@
             healAmount = rollD6() + 4;
             healFX();
             player.health += healAmount;
+            updateStats();
             gameLog('Kargunt recovers', healAmount, 'health from the fountain.')
         }
 
