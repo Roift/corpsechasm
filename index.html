@@ -644,12 +644,12 @@
 
             if (current_state === 'buyPotion') {
                 let potion = our_game_data.items.Potion;
-                if (player.silver < 4) {
+                if (player.silver < 5) {
                     our_game_data[current_state]["text"] = "\"You seem to be lacking in coin, chasmwalker. Come back when you have more.\" the Carrion Merchant spits at you."
                 } else {
                     buyFX();
                     player.items.push(potion);
-                    player.silver -= 4;
+                    player.silver -= 5;
                     updateInventory();
                     updateStats();
                     gameLog('Kargunt purchased a potion.');
@@ -731,7 +731,7 @@
             }
 
             if (current_state === 'fountain'){
-                healAmount = rollD6() + rollD6() + 3;
+                healAmount =  rollD6() + 4;
                 healFX();
                 player.health += healAmount;
                 gameLog('Kargunt recovers', healAmount, 'health from the fountain.')

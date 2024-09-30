@@ -126,7 +126,7 @@
         "next_state": [
             {
                 "type": "button",
-                "text": "Potion (Recover 5 HP) | 4s",
+                "text": "Potion (Recover 5 HP) | 5s",
                 "next_state": "buyPotion"
             },
             {
@@ -160,7 +160,7 @@
         "next_state": [
             {
                 "type": "button",
-                "text": "Potion (heal D6) | 4s",
+                "text": "Potion (heal D6) | 5s",
                 "next_state": "buyPotion"
             },
             {
