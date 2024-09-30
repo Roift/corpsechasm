@@ -24,7 +24,7 @@
         ]
     },
     "gstart": {
-        "text": "Your name is Kargunt. You awaken from a deep, drugged slumber within a horribly humid, oozing cavern.\nThe walls are the texture of tanning leather, the ground squelches beneath your feet.\nBioluminescence brightens the chamber, flooding from tranluscent webbing in the ceiling.",
+        "text": "Your name is Kargunt. You awaken from a deep, drugged slumber within a horribly humid, oozing cavern. The walls are the texture of tanning leather, the ground squelches beneath your feet.\nBioluminescence brightens the chamber, flooding from tranluscent webbing in the ceiling.",
         "next_state": [
             {
                 "type": "button",
