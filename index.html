@@ -187,8 +187,8 @@
         //Player stats are static and not read from game_def
         const player = {
             name: "Kargunt",
-            health: 15,
-            maxHealth: 15,
+            health: 20,
+            maxHealth: 20,
             level: 1,
             silver: 5,
             weapon: { name: "Unarmed", roll: "D4", modifier: -1 },
@@ -605,9 +605,9 @@
             //Resets players stats
             if (current_state === 'start') {
                 player.name = "Kargunt";
-                player.health = 15;
+                player.health = 20;
                 player.level = 1;
-                player.maxHealth = 15;
+                player.maxHealth = 20;
                 player.silver = 5;
                 player.weapon = { name: 'Unarmed', roll: 'D4', modifier: -1 };
                 player.armor = null;
@@ -644,12 +644,12 @@
 
             if (current_state === 'buyPotion') {
                 let potion = our_game_data.items.Potion;
-                if (player.silver < 6) {
+                if (player.silver < 4) {
                     our_game_data[current_state]["text"] = "\"You seem to be lacking in coin, chasmwalker. Come back when you have more.\" the Carrion Merchant spits at you."
                 } else {
                     buyFX();
                     player.items.push(potion);
-                    player.silver -= 6;
+                    player.silver -= 4;
                     updateInventory();
                     updateStats();
                     gameLog('Kargunt purchased a potion.');
@@ -658,12 +658,12 @@
 
             if (current_state === 'buyRope') {
                 let rope = our_game_data.items.Rope;
-                if (player.silver < 5) {
+                if (player.silver < 2) {
                     our_game_data[current_state]["text"] = "\"You seem to be lacking in coin, chasmwalker. Come back when you have more.\" the Carrion Merchant spits at you."
                 } else {
                     buyFX();
                     player.items.push(rope);
-                    player.silver -= 5;
+                    player.silver -= 2;
                     updateInventory();
                     updateStats();
                     updateStats();
@@ -672,11 +672,11 @@
             }
 
             if (current_state == 'buySword') {
-                if (player.silver < 18) {
+                if (player.silver < 12) {
                     our_game_data[current_state]["text"] = "\"You seem to be lacking in coin, chasmwalker. Come back when you have more.\" the Carrion Merchant spits at you."
                 } else {
                     let rustSword = our_game_data.items.Weapons["Rust-Serrated Longsword"];
-                    player.silver -= 18;
+                    player.silver -= 12;
                     player.items.push(rustSword);
                     buyFX();
                     updateInventory();
@@ -728,6 +728,13 @@
                     updateStats();
                     gameLog('Kargunt purchased Fleshmail.');
                 }
+            }
+
+            if (current_state === 'fountain'){
+                healAmount = rollD6() + rollD6() + 3;
+                healFX();
+                player.health += healAmount;
+                gameLog('Kargunt recovers', healAmount, 'health from the fountain.')
             }
 
             if (current_state === 'trapCheck') {
@@ -792,7 +799,7 @@
                     const fullDescription = `The riddle nearly shatters your mind. \nThe Doomsayer breaks out into maniacal laughter before melting into a puddle of blood.`;
                     typeText($('#my_text'), fullDescription, textSpeed, function () { });
                     gameLog('Kargunt failed the riddle.')
-                    dam = rollD6();
+                    dam = rollD4();
                     player.health = player.health - dam;
                     updateStats();
                     gameLog('Kargunt takes ', dam, ' psychic damage.');
@@ -848,8 +855,8 @@
             }
 
             if (current_state === 'power') {
-                player.points += 3;
-                gameLog('Kargunt absorbs 4 points.');
+                player.points += 5;
+                gameLog('Kargunt absorbs 5 points.');
                 updateStats();
             }
 

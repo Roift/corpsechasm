@@ -126,11 +126,11 @@
         "next_state": [
             {
                 "type": "button",
-                "text": "Potion (Recover 5 HP) | 6s",
+                "text": "Potion (Recover 5 HP) | 4s",
                 "next_state": "buyPotion"
             },
             {
-                "text": "Rope (Succeed Trap Rolls) | 5s",
+                "text": "Rope (Succeed Trap Rolls) | 2s",
                 "next_state": "buyRope"
             },
             {
@@ -138,7 +138,7 @@
                 "next_state": "buyArmor"
             },
             {
-                "text": "Rust-Serrated Longsword (D4+2) | 18s",
+                "text": "Rust-Serrated Longsword (D4+2) | 12s",
                 "next_state": "buySword"
             },
             {
@@ -160,7 +160,7 @@
         "next_state": [
             {
                 "type": "button",
-                "text": "Potion (heal D6) | 6s",
+                "text": "Potion (heal D6) | 4s",
                 "next_state": "buyPotion"
             },
             {
@@ -172,7 +172,7 @@
                 "next_state": "buyArmor"
             },
             {
-                "text": "Rust-Serrated Longsword (D6) | 18s",
+                "text": "Rust-Serrated Longsword (D6) | 12s",
                 "next_state": "buySword"
             },
             {
@@ -330,6 +330,17 @@
                 "type": "button",
                 "text": "REACT",
                 "next_state": "trapCheck",
+                "input": "Y"
+            }
+        ]
+    },
+    "fountain": {
+        "text": "The fountain flows freely with the fluid of life, inviting you to imbibe.\nThe sillouhettes of faces lurk in the pool's reflection.\nYou imbibe greedily from the fountain.",
+        "next_state": [
+            {
+                "type": "button",
+                "text": "Continue",
+                "next_state": "Advance",
                 "input": "Y"
             }
         ]
@@ -548,6 +559,11 @@
                 "name": "Monster2",
                 "description": "A creature emerges from the shadows. Its stench overwhelms your senses.",
                 "type": "StartCombat"
+            },
+            {
+                "name": "Amniotic Fountain",
+                "description": "In the center of the room a yellow-tinged fountain gushes with amniotic fluid.",
+                "type": "fountain"
             }
         ],
         "fixedEvents": [
