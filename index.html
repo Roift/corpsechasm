@@ -922,29 +922,39 @@
                         updateStats();
                         break;
                     case 2:
+                    randSilver = rollD6() + 3;
+                        player.silver += randSilver;
+                        getSilver.play();
+                        gameLog('Kargunt recovers', randSilver, 'silver from the monster\'s corpse.');
+                        updateStats();
                         break;
                     case 3:
-                        randSilver = rollD6() + 3;
+                        randSilver = rollD6() + 4;
                         player.silver += randSilver;
                         getSilver.play();
                         gameLog('Kargunt recovers', randSilver, 'silver from the monster\'s corpse.');
                         updateStats();
                         break;
                     case 4:
-                        randSilver = rollD6() + 3;
+                        randSilver = rollD6() + 5;
                         player.silver += randSilver;
                         getSilver.play();
                         gameLog('Kargunt recovers', randSilver, 'silver from the monster\'s corpse.');
                         updateStats();
                         break;
                     case 5:
-                        randSilver = rollD6();
+                        randSilver = rollD6() + 6;
                         player.silver += randSilver;
                         getSilver.play();
                         gameLog('Kargunt recovers', randSilver, 'silver from the monster\'s corpse.');
                         updateStats();
                         break;
                     case 6:
+                    player.items.push(potion);
+                    updateInventory();
+                    console.log('Gathered potion');
+                    gameLog('Kargunt gathers the creatures fluids to create a potion.');
+                    break;
                         break;
                     default:
                         console.log("No case matched");
