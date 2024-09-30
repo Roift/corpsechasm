@@ -50,7 +50,7 @@
         ]
     },
     "GiveUp": {
-        "text": "If someone went through all the effort to drug and drag you down here, then surely you must have done something to deserve it.\nYou close your eyes and quietly accept your fate.\nWarmth surrounds you, your flesh becoming one with the chasm.\nYou have been consumed.",
+        "text": "If someone went through all the effort to drug and drag you down here,\nthen surely you must have done something to deserve it.\nYou close your eyes and quietly accept your fate.\nWarmth surrounds you, your flesh becoming one with the chasm.\nYou have been consumed.",
         "sound": "/sounds/gameover.mp3",
         "back_sound": "/sounds/silence.mp3",
         "ascii-art": "\n\n ▄████  ▄▄▄       ███▄ ▄███▓▓█████     ▒█████   ██▒   █▓▓█████  ██▀███  \n ██▒ ▀█▒▒████▄    ▓██▒▀█▀ ██▒▓█   ▀    ▒██▒  ██▒▓██░   █▒▓█   ▀ ▓██ ▒ ██▒\n▒██░▄▄▄░▒██  ▀█▄  ▓██    ▓██░▒███      ▒██░  ██▒ ▓██  █▒░▒███   ▓██ ░▄█ ▒\n░▓█  ██▓░██▄▄▄▄██ ▒██    ▒██ ▒▓█  ▄    ▒██   ██░  ▒██ █░░▒▓█  ▄ ▒██▀▀█▄  \n░▒▓███▀▒ ▓█   ▓██▒▒██▒   ░██▒░▒████▒   ░ ████▓▒░   ▒▀█░  ░▒████▒░██▓ ▒██▒\n░▒   ▒  ▒▒   ▓▒█░░ ▒░   ░  ░░░ ▒░ ░   ░ ▒░▒░▒░    ░ ▐░  ░░ ▒░ ░░ ▒▓ ░▒▓░\n░   ░   ▒   ▒▒ ░░  ░      ░ ░ ░  ░     ░ ▒ ▒░    ░ ░░   ░ ░  ░  ░▒ ░ ▒░\n░ ░   ░   ░   ▒   ░      ░      ░      ░ ░ ░ ▒       ░░     ░     ░░   ░ \n       ░       ░  ░       ░      ░  ░       ░ ░        ░     ░  ░   ░     \n                                                     ░                   \n",
