@@ -561,6 +561,11 @@
                 "type": "StartCombat"
             },
             {
+                "name": "Monster3",
+                "description": "A creature emerges from the shadows. Its stench overwhelms your senses.",
+                "type": "StartCombat"
+            },
+            {
                 "name": "Amniotic Fountain",
                 "description": "In the center of the room a yellow-tinged fountain gushes with amniotic fluid.",
                 "type": "fountain"
