@@ -98,7 +98,7 @@
 
         #inventory_window {
             position: fixed;
-            top: 175px;
+            top: 183px;
             right: 20px;
             width: 200px;
             height: 420px;
@@ -1135,15 +1135,12 @@
         }
 
         function flashScreen(color) {
-            // Set the background color of the overlay and show it
             $('#overlay').css('background-color', color).fadeIn(300, function () { // Fade in slowly
-                // Fade out the overlay after a brief pause
                 setTimeout(() => {
-                    $(this).fadeOut(300, function () { // Fade out slowly
-                        // Reset to transparent after fading out
+                    $(this).fadeOut(300, function () {
                         $(this).css('background-color', 'transparent');
                     });
-                }, 100); // Optional delay before fading out
+                }, 100);
             });
         }
 
