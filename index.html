@@ -23,11 +23,13 @@
         }
 
         #my_text {
-        text-align: left;
-        margin: 10px;
-        max-width: calc(100vw - 40vw); /* Adjust based on the width of your right panels */
-        overflow-wrap: break-word; /* Allow text to break and wrap onto the next line */
-    }
+            text-align: left;
+            margin: 10px;
+            max-width: calc(100vw - 40vw);
+            /* Adjust based on the width of your right panels */
+            overflow-wrap: break-word;
+            /* Allow text to break and wrap onto the next line */
+        }
 
         button {
             background-color: black;
@@ -66,8 +68,11 @@
             width: 100%;
             height: 100%;
             background-color: transparent;
+            /* Start as transparent */
             z-index: -1;
+            /* Set a higher z-index */
             display: none;
+            /* Keep hidden until activated */
         }
 
         #my_text,
@@ -101,6 +106,20 @@
             overflow-y: auto;
         }
 
+        #inventory_content div {
+            padding: 5px;
+            /* Add padding for better spacing */
+            cursor: pointer;
+            /* Change cursor to pointer */
+            transition: background-color 0.3s ease;
+            /* Smooth transition */
+        }
+
+        #inventory_content div:hover {
+            background-color: gray;
+            /* Change background color on hover */
+        }
+
         #player_stats {
             height: 20vh;
             width: auto;
@@ -122,7 +141,6 @@
             margin-bottom: 5px;
             color: red;
         }
-
 
         #game-console::-webkit-scrollbar,
         #inventory_window::-webkit-scrollbar {
@@ -156,6 +174,8 @@
 
 <body>
 
+    <div id="overlay"></div>
+
     <div id="my_text">
         <h1>Loading...</h1>
     </div>
@@ -176,41 +196,43 @@
     </div>
 
     <div id="skip-instruction">Press Enter to skip</div>
+</body>
+
+</html>
 
 
 
+<script>
+    var current_state = 'start';
+    var our_game_data = null;
+    var bk_audio = new Audio();
+    let typingInterval;
+    const textSpeed = 35;
 
-    <script>
-        var current_state = 'start';
-        var our_game_data = null;
-        var bk_audio = new Audio();
-        let typingInterval;
-        const textSpeed = 35;
+    //Player stats are static and not read from game_def
+    const player = {
+        name: "Kargunt",
+        health: 20,
+        maxHealth: 20,
+        level: 1,
+        silver: 5,
+        weapon: { name: "Unarmed", roll: "D4", modifier: -1 },
+        armor: null,
+        points: 0,
+        items: [],
+        scrolls: [],
+        storyIndex: 0,
+        roomsVisited: 0,
+        totalRoomsVisited: 0,
+        totalPoints: 0
+    };
 
-        //Player stats are static and not read from game_def
-        const player = {
-            name: "Kargunt",
-            health: 20,
-            maxHealth: 20,
-            level: 1,
-            silver: 5,
-            weapon: { name: "Unarmed", roll: "D4", modifier: -1 },
-            armor: null,
-            points: 0,
-            items: [],
-            scrolls: [],
-            storyIndex: 0,
-            roomsVisited: 0,
-            totalRoomsVisited: 0,
-            totalPoints: 0
-        };
+    let currentEnemy = {};
 
-        let currentEnemy = {};
-
-        //Update player stats
-        function updateStats() {
-            const modifierDisplay = player.weapon.modifier > 0 ? `+${player.weapon.modifier}` : player.weapon.modifier;
-            const statsContent = `
+    //Update player stats
+    function updateStats() {
+        const modifierDisplay = player.weapon.modifier > 0 ? `+${player.weapon.modifier}` : player.weapon.modifier;
+        const statsContent = `
             <strong>Name:</strong> ${player.name}<br>
             <strong>HP:</strong> ${player.health}/${player.maxHealth}<br>
             <strong>Level:</strong> ${player.level}<br>
@@ -218,1016 +240,1015 @@
             <strong>Weapon:</strong> ${player.weapon.name} (Attack: ${player.weapon.roll}${modifierDisplay})<br>
             <strong>Armor:</strong> ${player.armor ? player.armor : 'None'}<br>
             <strong>Points:</strong> ${player.points}<br>`;
-            $('#stats_content').html(statsContent);
+        $('#stats_content').html(statsContent);
 
-            //When player gathers 15 points they level up
-            if (player.points >= 15) {
-                player.points = 0;
-                player.maxHealth += 5;
-                player.health += 5;
-                player.level += 1;
-                gameLog('Kargunt has leveled up! Max health increased.')
-                let levelUp = new Audio('/sounds/levelup.mp3');
-                levelUp.play();
-                flashScreen('yellow');
-                updateStats();
-            }
-
-            //Prevents health from exceeding maximum
-            if (player.health > player.maxHealth) {
-                player.health = player.maxHealth;
-                updateStats();
-            }
+        //When player gathers 15 points they level up
+        if (player.points >= 15) {
+            player.points = 0;
+            player.maxHealth += 5;
+            player.health += 5;
+            player.level += 1;
+            gameLog('Kargunt has leveled up! Max health increased.')
+            let levelUp = new Audio('/sounds/levelup.mp3');
+            levelUp.play();
+            flashScreen('yellow');
+            updateStats();
         }
 
-        //Update inventory display
-        function updateInventory() {
-            console.log("Inventory updated", player.items);
+        //Prevents health from exceeding maximum
+        if (player.health > player.maxHealth) {
+            player.health = player.maxHealth;
+            updateStats();
+        }
+    }
 
-            let inventoryContent = '';
+    //Update inventory display
+    function updateInventory() {
+        console.log("Inventory updated", player.items);
 
-            if (player.items.length === 0) {
-                inventoryContent = '';
-            } else {
-                player.items.forEach((item, index) => {
-                    inventoryContent += `<div class="inventory-item" data-index="${index}">${item.name}</div>`;
-                });
-            }
+        let inventoryContent = '';
 
-            $('#inventory_content').html(inventoryContent);
-
-            //Triggers item usage when item is clicked (if item has an active usage)
-            $('.inventory-item').off('click').on('click', function () {
-                const itemIndex = $(this).data('index');
-                useItem(itemIndex);
+        if (player.items.length === 0) {
+            inventoryContent = '';
+        } else {
+            player.items.forEach((item, index) => {
+                inventoryContent += `<div class="inventory-item" data-index="${index}">${item.name}</div>`;
             });
         }
 
-        //Logic for using consummable items
-        function useItem(index) {
-            console.log('Using item!');
+        $('#inventory_content').html(inventoryContent);
 
-            const item = player.items[index];
+        //Triggers item usage when item is clicked (if item has an active usage)
+        $('.inventory-item').off('click').on('click', function () {
+            const itemIndex = $(this).data('index');
+            useItem(itemIndex);
+        });
+    }
 
-            //Potions restore 5 HP
-            if (item && item.name === "Potion") {
-                player.health += 5;
-                healFX();
-                player.items.splice(index, 1); //Remove the item from the inventory
-                updateInventory();
-                updateStats();
-            }
+    //Logic for using consummable items
+    function useItem(index) {
+        console.log('Using item!');
 
-            if (item && item.name === "Rust-Serrated Longsword") {
-                let rustSword = our_game_data.items.Weapons["Rust-Serrated Longsword"];
-                player.weapon = { name: 'Rust-Serrated Longsword', roll: 'D4', modifier: 2 };
-                player.items.splice(index, 1); //Remove the item from the inventory
-                gameLog('Kargunt equipped Rust-Serrated Longsword.');
-                equipFX();
-                updateInventory();
-                updateStats();
-            }
+        const item = player.items[index];
 
-            if (item && item.name === "Fleshmail") {
-                let armor = our_game_data.items.Armor["Fleshmail"];
-                player.armor = 'D4';
-                player.items.splice(index, 1); //Remove the item from the inventory
-                gameLog('Kargunt equipped Fleshmail.');
-                equipFX();
-                updateInventory();
-                updateStats();
-            }
-
-            if (item && item.name === "Líkkrossari") {
-                let rustSword = our_game_data.items.Weapons["Líkkrossari"];
-                player.weapon = { name: 'Líkkrossari', roll: 'D6', modifier: 1 };
-                player.items.splice(index, 1); //Remove the item from the inventory
-                gameLog('Kargunt equipped Líkkrossari.');
-                equipFX();
-                updateInventory();
-                updateStats();
-            }
-
-            if (item && item.name === "Mighty Zweihander") {
-                let rustSword = our_game_data.items.Weapons["Mighty Zweihander"];
-                player.weapon = { name: 'Mighty Zweihander', roll: 'D6', modifier: 2 };
-                player.items.splice(index, 1); //Remove the item from the inventory
-                gameLog('Kargunt equipped Mighty Zweihander.');
-                equipFX();
-                updateInventory();
-                updateStats();
-            }
-        }
-
-        //Remove item from player inventory
-        function removeItem(itemName) {
-            const itemIndex = player.items.findIndex(item => item.name === itemName);
-            if (itemIndex > -1) {
-                player.items.splice(itemIndex, 1); //Remove the item from the inventory
-                updateInventory(); //Update the inventory display
-                console.log(`${itemName} has been removed from the inventory.`);
-            } else {
-                console.log(`${itemName} not found in the inventory.`);
-            }
-        }
-
-        //Top-down rendering effect for ASCII art
-        function scanText(element, text, speed) {
-            console.log("Rendering Scan Effect");
-            let lines = text.split("\n");
-            let i = 0;
-
-            function scan() {
-                if (i < lines.length) {
-                    element.append(lines[i] + "<br>");
-                    i++;
-                    setTimeout(scan, speed);
-                }
-            }
-            scan();
-        }
-
-        //Typewriter rendering effect for all text
-        function typeText(element, text, speed, callback = null) {
-            element.html('');
-            $('#skip-instruction').show();
-            let i = 0;
-            let typing = true;
-
-            //Skip typewriter effect if player presses enter
-            const handleKeyDown = (event) => {
-                if (event.key === 'Enter' && typing) {
-                    console.log("Skipping Text!");
-                    clearTimeout(typingInterval);
-                    element.html(text);
-                    typing = false;
-                    $('#skip-instruction').hide();
-                    document.removeEventListener('keydown', handleKeyDown);
-                    callback && callback();
-                }
-            };
-
-            document.addEventListener('keydown', handleKeyDown); //Skip text when pressing enter
-
-            const type = () => {
-                if (i < text.length) {
-                    element.append(text[i++]);
-                    typingInterval = setTimeout(type, speed);
-                } else {
-                    typing = false;
-                    $('#skip-instruction').hide();
-                    document.removeEventListener('keydown', handleKeyDown);
-                    callback && callback();
-                }
-            };
-            type();
-        }
-
-        //Called to ensure text clears between state transitions
-        function clearText() {
-            $('#my_text').html('');
-            clearTimeout(typingInterval);
-            typingInterval = null;
-        }
-
-        //Renders button options defined in state
-        function renderOptions(options) {
-            if (options) {
-                let build_html = '';
-                options.forEach(function (option) {
-                    build_html += "<button onclick='current_state = \"" + option['next_state'] + "\"; visit_state();'>";
-                    build_html += option['text'] + "</button><br>\n";
-                });
-                $('#my_options').html(build_html);
-            }
-        }
-
-        //FX called whenever player heals
-        function healFX() {
-            let healAudio = new Audio('/sounds/heal.mp3');
-            healAudio.play();
-            flashScreen('green');
-        }
-
-        function equipFX() {
-            let equipAudio = new Audio('/sounds/equip.mp3');
-            equipAudio.play();
-        }
-
-        //FX called whenever player takes damage
-        function hurtFX() {
-            let hurtAudio = new Audio('/sounds/takedamage.mp3');
-            hurtAudio.play();
-            flashScreen('red');
-        }
-
-        function buyFX() {
-            let buySound = new Audio('/sounds/paymoney.mp3');
-            buySound.play();
-        }
-
-        //FX called whenever player deals damage
-        function damageFX() {
-            let damageAudio = new Audio('/sounds/dealdamage.mp3');
-            damageAudio.play();
-            flashScreen('white');
-        }
-
-        //Rolls a 4-sided die
-        function rollD4() {
-            console.log("Rolling d4...");
-            roll = Math.floor(Math.random() * 4) + 1;
-            console.log("Rolled a ", roll);
-
-            return roll;
-        }
-
-        //Rolls a 6-sided die
-        function rollD6() {
-            console.log("Rolling d6...");
-            roll = Math.floor(Math.random() * 6) + 1;
-            console.log("Rolled a ", roll);
-
-            return roll;
-        }
-
-        //Selects enemy for usage in combat encounters
-        function selectEnemy() {
-            //Player encounters only enemies from weakEnemies pool below level 4.
-            //At level 4, they have a 67% chance to draw from the toughEnemies pool instead.
-            if (player.level < 3) {
-                const enemies = our_game_data.pools.weakEnemies;
-                const randomIndex = Math.floor(Math.random() * enemies.length);
-                currentEnemy = enemies[randomIndex];
-            } else if (player.level === 5) {
-                const enemies = our_game_data.pools.bossEnemies;
-                const randomIndex = Math.floor(Math.random() * enemies.length);
-                currentEnemy = enemies[randomIndex];
-            } else if (rollD6() <= 4) {
-                const enemies = our_game_data.pools.weakEnemies;
-                const randomIndex = Math.floor(Math.random() * enemies.length);
-                currentEnemy = enemies[randomIndex];
-            } else {
-                const enemies = our_game_data.pools.toughEnemies;
-                const randomIndex = Math.floor(Math.random() * enemies.length);
-                currentEnemy = enemies[randomIndex];
-            }
-
-            const enemyDesc = currentEnemy.description;
-            const enemyName = currentEnemy.name;
-
-            console.log("Facing Enemy:", currentEnemy.name);
-            console.log("Starting Health:", currentEnemy.health);
-
-            const fullDescription = `${enemyName} approaches.\n\n${enemyDesc}`;
-            typeText($('#my_text'), fullDescription, textSpeed);
-
-        }
-
-        //Passive loot gathering that triggers on entering certain rooms
-        function roomLoot() {
-            let potion = our_game_data.items.Potion;
-            let rope = our_game_data.items.Rope;
-            lootRoll = rollD6();
-            switch (lootRoll) {
-                case 1:
-                    player.items.push(potion);
-                    updateInventory();
-                    console.log('Gathered potion');
-                    gameLog('Kargunt finds a vial of mysterious fluid embedded in the floor.');
-                    break;
-                case 2:
-                    randSilver = rollD6();
-                    let getSilver = new Audio('/sounds/getmoney.mp3');
-                    getSilver.play();
-                    player.silver += randSilver;
-                    gameLog('Kargunt picks up', randSilver, 'silver off the floor.');
-                    updateStats;
-                    break;
-                case 3:
-                    break;
-                case 4:
-                    break;
-                case 5:
-                    break;
-                case 6:
-                    break;
-                default:
-                    console.log("No case matched");
-            }
-        }
-
-        //Randomly generates a room by combining a room description and an event description. 
-        //The chosen event description dictates what the next state is.
-        function generateRoom() {
-            console.log("Generating Room...");
-            player.roomsVisited += 1;
-            player.totalRoomsVisited += 1;
-            roomsPool = our_game_data.pools.rooms;
-            eventsPool = our_game_data.pools.events;
-
-            randomRoom = roomsPool[Math.floor(Math.random() * roomsPool.length)];
-            randomEvent = eventsPool[Math.floor(Math.random() * eventsPool.length)];
-
-            roomDescription = randomRoom.description;
-            eventDescription = randomEvent.description;
-
-            //Guarantees visit to Merchant every 6 rooms
-            if (player.roomsVisited != 1 && player.roomsVisited % 6 === 0) {
-                eventsPool = our_game_data.pools.fixedEvents;
-                randomEvent = eventsPool[Math.floor(Math.random() * eventsPool.length)];
-                eventDescription = randomEvent.description;
-            }
-
-            if (randomEvent.name === 'Nothing') {
-                roomLoot();
-            }
-
-            if (randomEvent === "Story") {
-                const storyPool = our_game_data.pools.story;
-                const currentStory = storyPool[player.storyIndex];
-                eventDescription = currentStory.text;
-            }
-
-            console.log("\nRoom is: ", randomRoom.name);
-            console.log("\nEvent name: ", randomEvent.name);
-
-            $('#my_options').html('');
-
-            // et current state to HandleEvent after generating the room and event
-            current_state = 'HandleEvent';
-            console.log("Current state is: ", current_state);
-
-            our_game_data['HandleEvent']['text'] = eventDescription;
-            //Save the event type for the next state transition after the player clicks "Proceed"
-            our_game_data['HandleEvent']['next_state'] = randomEvent.type;
-
-            // Update the text to display the room and event
-            const fullDescription = `You enter ${roomDescription}\n\n${eventDescription}`;
-            typeText($('#my_text'), fullDescription, textSpeed);
-
-            const bossMusic = '/sounds/bossmusic.mp3';
-            const battleMusic = '/sounds/confrontation.mp3'
-            if (player.level === 5) {
-                our_game_data['StartCombat']['back_sound'] = bossMusic;
-            } else {
-                our_game_data['StartCombat']['back_sound'] = battleMusic;
-            }
-
-            renderOptions([{
-                text: "Proceed",
-                next_state: our_game_data['HandleEvent']['next_state'] // Transition based on the event type
-            }]);
-            console.log('Player has visited ', player.roomsVisited, 'rooms.')
-        }
-
-        function visit_state(state) {
+        //Potions restore 5 HP
+        if (item && item.name === "Potion") {
+            player.health += 5;
+            healFX();
+            player.items.splice(index, 1); //Remove the item from the inventory
+            updateInventory();
             updateStats();
-            clearText();
-            let textElement = $('#my_text');
+        }
 
-            //Log the current state and game data
-            console.log("Visiting State:", current_state);
-            console.log("Game Data:", our_game_data);
+        if (item && item.name === "Rust-Serrated Longsword") {
+            let rustSword = our_game_data.items.Weapons["Rust-Serrated Longsword"];
+            player.weapon = { name: 'Rust-Serrated Longsword', roll: 'D4', modifier: 2 };
+            player.items.splice(index, 1); //Remove the item from the inventory
+            gameLog('Kargunt equipped Rust-Serrated Longsword.');
+            equipFX();
+            updateInventory();
+            updateStats();
+        }
 
-            if (our_game_data[current_state]['sound'] != null) {
-                var audio = new Audio(our_game_data[current_state]['sound']);
-                audio.play();
+        if (item && item.name === "Fleshmail") {
+            let armor = our_game_data.items.Armor["Fleshmail"];
+            player.armor = 'D4';
+            player.items.splice(index, 1); //Remove the item from the inventory
+            gameLog('Kargunt equipped Fleshmail.');
+            equipFX();
+            updateInventory();
+            updateStats();
+        }
+
+        if (item && item.name === "Líkkrossari") {
+            let rustSword = our_game_data.items.Weapons["Líkkrossari"];
+            player.weapon = { name: 'Líkkrossari', roll: 'D6', modifier: 1 };
+            player.items.splice(index, 1); //Remove the item from the inventory
+            gameLog('Kargunt equipped Líkkrossari.');
+            equipFX();
+            updateInventory();
+            updateStats();
+        }
+
+        if (item && item.name === "Mighty Zweihander") {
+            let rustSword = our_game_data.items.Weapons["Mighty Zweihander"];
+            player.weapon = { name: 'Mighty Zweihander', roll: 'D6', modifier: 2 };
+            player.items.splice(index, 1); //Remove the item from the inventory
+            gameLog('Kargunt equipped Mighty Zweihander.');
+            equipFX();
+            updateInventory();
+            updateStats();
+        }
+    }
+
+    //Remove item from player inventory
+    function removeItem(itemName) {
+        const itemIndex = player.items.findIndex(item => item.name === itemName);
+        if (itemIndex > -1) {
+            player.items.splice(itemIndex, 1); //Remove the item from the inventory
+            updateInventory(); //Update the inventory display
+            console.log(`${itemName} has been removed from the inventory.`);
+        } else {
+            console.log(`${itemName} not found in the inventory.`);
+        }
+    }
+
+    //Top-down rendering effect for ASCII art
+    function scanText(element, text, speed) {
+        console.log("Rendering Scan Effect");
+        let lines = text.split("\n");
+        let i = 0;
+
+        function scan() {
+            if (i < lines.length) {
+                element.append(lines[i] + "<br>");
+                i++;
+                setTimeout(scan, speed);
             }
+        }
+        scan();
+    }
 
-            if (our_game_data[current_state] && 'back_sound' in our_game_data[current_state]) {
-                console.log("Changing music!");
-                bk_audio.pause();
-                if (our_game_data[current_state]['back_sound']) {
-                    bk_audio = new Audio(our_game_data[current_state]['back_sound']);
-                    bk_audio.play();
-                    bk_audio.addEventListener('timeupdate', function () {
-                        var buffer = .44
-                        if (this.currentTime > this.duration - buffer) {
-                            this.currentTime = 0;
-                            this.play();
-                        }
-                    });
-                }
+    //Typewriter rendering effect for all text
+    function typeText(element, text, speed, callback = null) {
+        element.html('');
+        $('#skip-instruction').show();
+        let i = 0;
+        let typing = true;
+
+        //Skip typewriter effect if player presses enter
+        const handleKeyDown = (event) => {
+            if (event.key === 'Enter' && typing) {
+                console.log("Skipping Text!");
+                clearTimeout(typingInterval);
+                element.html(text);
+                typing = false;
+                $('#skip-instruction').hide();
+                document.removeEventListener('keydown', handleKeyDown);
+                callback && callback();
             }
+        };
 
-            //Check if the current state exists in the game data
-            if (!our_game_data[current_state]) {
-                console.error("State does not exist in game data:", current_state);
-                return; //Exit early to prevent further errors
+        document.addEventListener('keydown', handleKeyDown); //Skip text when pressing enter
+
+        const type = () => {
+            if (i < text.length) {
+                element.append(text[i++]);
+                typingInterval = setTimeout(type, speed);
+            } else {
+                typing = false;
+                $('#skip-instruction').hide();
+                document.removeEventListener('keydown', handleKeyDown);
+                callback && callback();
             }
+        };
+        type();
+    }
 
-            //Resets players stats
-            if (current_state === 'start') {
-                player.name = "Kargunt";
-                player.health = 20;
-                player.level = 1;
-                player.maxHealth = 20;
-                player.silver = 5;
-                player.weapon = { name: 'Unarmed', roll: 'D4', modifier: -1 };
-                player.armor = null;
-                player.points = 0;
-                player.items = [];
-                player.roomsVisited = 0;
-                player.totalPoints = 0;
-                player.totalRoomsVisited = 0;
+    //Called to ensure text clears between state transitions
+    function clearText() {
+        $('#my_text').html('');
+        clearTimeout(typingInterval);
+        typingInterval = null;
+    }
+
+    //Renders button options defined in state
+    function renderOptions(options) {
+        if (options) {
+            let build_html = '';
+            options.forEach(function (option) {
+                build_html += "<button onclick='current_state = \"" + option['next_state'] + "\"; visit_state();'>";
+                build_html += option['text'] + "</button><br>\n";
+            });
+            $('#my_options').html(build_html);
+        }
+    }
+
+    //FX called whenever player heals
+    function healFX() {
+        let healAudio = new Audio('/sounds/heal.mp3');
+        healAudio.play();
+        flashScreen('green');
+    }
+
+    function equipFX() {
+        let equipAudio = new Audio('/sounds/equip.mp3');
+        equipAudio.play();
+    }
+
+    //FX called whenever player takes damage
+    function hurtFX() {
+        let hurtAudio = new Audio('/sounds/takedamage.mp3');
+        hurtAudio.play();
+        flashScreen('red');
+    }
+
+    function buyFX() {
+        let buySound = new Audio('/sounds/paymoney.mp3');
+        buySound.play();
+    }
+
+    //FX called whenever player deals damage
+    function damageFX() {
+        let damageAudio = new Audio('/sounds/dealdamage.mp3');
+        damageAudio.play();
+        flashScreen('white');
+    }
+
+    //Rolls a 4-sided die
+    function rollD4() {
+        console.log("Rolling d4...");
+        roll = Math.floor(Math.random() * 4) + 1;
+        console.log("Rolled a ", roll);
+
+        return roll;
+    }
+
+    //Rolls a 6-sided die
+    function rollD6() {
+        console.log("Rolling d6...");
+        roll = Math.floor(Math.random() * 6) + 1;
+        console.log("Rolled a ", roll);
+
+        return roll;
+    }
+
+    //Selects enemy for usage in combat encounters
+    function selectEnemy() {
+        //Player encounters only enemies from weakEnemies pool below level 4.
+        //At level 4, they have a 67% chance to draw from the toughEnemies pool instead.
+        if (player.level < 3) {
+            const enemies = our_game_data.pools.weakEnemies;
+            const randomIndex = Math.floor(Math.random() * enemies.length);
+            currentEnemy = enemies[randomIndex];
+        } else if (player.level === 5) {
+            const enemies = our_game_data.pools.bossEnemies;
+            const randomIndex = Math.floor(Math.random() * enemies.length);
+            currentEnemy = enemies[randomIndex];
+        } else if (rollD6() <= 4) {
+            const enemies = our_game_data.pools.weakEnemies;
+            const randomIndex = Math.floor(Math.random() * enemies.length);
+            currentEnemy = enemies[randomIndex];
+        } else {
+            const enemies = our_game_data.pools.toughEnemies;
+            const randomIndex = Math.floor(Math.random() * enemies.length);
+            currentEnemy = enemies[randomIndex];
+        }
+
+        const enemyDesc = currentEnemy.description;
+        const enemyName = currentEnemy.name;
+
+        console.log("Facing Enemy:", currentEnemy.name);
+        console.log("Starting Health:", currentEnemy.health);
+
+        const fullDescription = `${enemyName} approaches.\n\n${enemyDesc}`;
+        typeText($('#my_text'), fullDescription, textSpeed);
+
+    }
+
+    //Passive loot gathering that triggers on entering certain rooms
+    function roomLoot() {
+        let potion = our_game_data.items.Potion;
+        let rope = our_game_data.items.Rope;
+        lootRoll = rollD6();
+        switch (lootRoll) {
+            case 1:
+                player.items.push(potion);
                 updateInventory();
-            }
-
-            if (current_state === 'gstart') {
-                updateStats();
-            }
-
-            if (current_state === 'GetWeap') {
-                player.weapon = { name: 'Beinrýtingur', roll: 'D4', modifier: 1 };
-                gameLog('Kargunt has equipped Beinrýtingur.');
-                equipFX();
-                updateStats();
-            }
-
-            if (current_state === 'GenerateRoom') {
-                generateRoom();
-                let options = our_game_data[current_state]['next_state'];
-                renderOptions(options);
-                return;
-            }
-
-            //Player encounters shop every 6 rooms
-            if (player.roomsVisited % 6 === 0) {
-
-            }
-
-            if (current_state === 'buyPotion') {
-                let potion = our_game_data.items.Potion;
-                if (player.silver < 5) {
-                    our_game_data[current_state]["text"] = "\"You seem to be lacking in coin, chasmwalker. Come back when you have more.\" the Carrion Merchant spits at you."
-                } else {
-                    buyFX();
-                    player.items.push(potion);
-                    player.silver -= 5;
-                    updateInventory();
-                    updateStats();
-                    gameLog('Kargunt purchased a potion.');
-                }
-            }
-
-            if (current_state === 'buyRope') {
-                let rope = our_game_data.items.Rope;
-                if (player.silver < 2) {
-                    our_game_data[current_state]["text"] = "\"You seem to be lacking in coin, chasmwalker. Come back when you have more.\" the Carrion Merchant spits at you."
-                } else {
-                    buyFX();
-                    player.items.push(rope);
-                    player.silver -= 2;
-                    updateInventory();
-                    updateStats();
-                    updateStats();
-                    gameLog('Kargunt purchased a rope.');
-                }
-            }
-
-            if (current_state == 'buySword') {
-                if (player.silver < 12) {
-                    our_game_data[current_state]["text"] = "\"You seem to be lacking in coin, chasmwalker. Come back when you have more.\" the Carrion Merchant spits at you."
-                } else {
-                    let rustSword = our_game_data.items.Weapons["Rust-Serrated Longsword"];
-                    player.silver -= 12;
-                    player.items.push(rustSword);
-                    buyFX();
-                    updateInventory();
-                    updateStats();
-                    gameLog('Kargunt purchased a Rust-Serrated Longsword.');
-                }
-
-            }
-
-            if (current_state == 'buyMace') {
-                if (player.silver < 27) {
-                    our_game_data[current_state]["text"] = "\"You seem to be lacking in coin, chasmwalker. Come back when you have more.\" the Carrion Merchant spits at you."
-                }
-                else {
-                    let corpseCrusher = our_game_data.items.Weapons["Líkkrossari"];
-                    player.items.push(corpseCrusher);
-                    player.silver -= 27;
-                    buyFX();
-                    updateInventory();
-                    updateStats();
-                    gameLog('Kargunt purchased a Líkkrossari.');
-                }
-
-            }
-
-            if (current_state == 'buyZwei') {
-                if (player.silver < 40) {
-                    our_game_data[current_state]["text"] = "\"You seem to be lacking in coin, chasmwalker. Come back when you have more.\" the Carrion Merchant spits at you."
-                } else {
-                    let mightyZwei = our_game_data.items.Weapons["Mighty Zweihander"];
-                    player.items.push(mightyZwei);
-                    player.silver -= 40;
-                    buyFX();
-                    updateInventory();
-                    updateStats();
-                    gameLog('Kargunt purchased a Mighty Zweihander.');
-                }
-            }
-
-            if (current_state == 'buyArmor') {
-                if (player.silver < 20) {
-                    our_game_data[current_state]["text"] = "\"You seem to be lacking in coin, chasmwalker. Come back when you have more.\" the Carrion Merchant spits at you."
-                } else {
-                    let armor = our_game_data.items.Armor["Fleshmail"];
-                    player.items.push(armor);
-                    player.silver -= 20;
-                    buyFX();
-                    updateInventory();
-                    updateStats();
-                    gameLog('Kargunt purchased Fleshmail.');
-                }
-            }
-
-            if (current_state === 'fountain') {
-                healAmount = rollD6() + 4;
-                healFX();
-                player.health += healAmount;
-                gameLog('Kargunt recovers', healAmount, 'health from the fountain.')
-            }
-
-            if (current_state === 'trapCheck') {
-                console.log("Trap triggered!");
-                const ropeIndex = player.items.indexOf("Rope");
-                gameLog('Kargunt has activated a trap.');
-                dodgeRoll = rollD6();
-
-                if (player.items.some(item => item.name === "Rope")) {
-                    gameLog("Kargunt uses the Rope to escape the trap!");
-                    removeItem("Rope");
-                    dodgeRoll += 4;
-                }
-
-                if (dodgeRoll <= 3) {
-                    const fullDescription = `You miss the chunk of Chasm-flesh you were hoping to land on. Your feet dip into the bile.\nIt burns.`;
-                    typeText($('#my_text'), fullDescription, textSpeed, function () { });
-                    gameLog('Kargunt is caught by the trap!');
-                    dam = rollD6();
-                    player.health = player.health - dam;
-                    updateStats();
-                    gameLog('Kargunt takes ', dam, ' damage from the trap.');
-                    hurtFX();
-                    if (player.health > 0) {
-                        renderOptions([{
-                            text: "Continue",
-                            next_state: 'Advance'
-                        }]);
-                    } else {
-                        renderOptions([{
-                            text: "Continue",
-                            next_state: 'GameOver'
-                        }]);
-                    }
-                    return;
-                } else {
-                    const fullDescription = `You deftly avoid the sickly fluid, landing to safety on a raised chunk of Chasm-flesh.`;
-                    typeText($('#my_text'), fullDescription, textSpeed, function () { });
-                    gameLog('Kargunt avoids the trap!')
-                    renderOptions([
-                        {
-                            text: "Continue",
-                            next_state: 'Advance'
-                        }
-                    ]);
-                    return;
-                }
-            }
-
-            if (current_state === 'doomsayer') {
-                const riddlePool = our_game_data.pools.riddles;
-                const randomRiddle = riddlePool[Math.floor(Math.random() * riddlePool.length)];
-                const riddleText = randomRiddle.text;
-                our_game_data[current_state]['text'] = riddleText;
-            }
-
-            if (current_state === 'riddleCheck') {
-                console.log("Trap triggered!");
-                gameLog('Kargunt attempts the Doomsayer\'s riddle.');
-                riddleRoll = rollD6();
-                if (riddleRoll % 2 == 0) {
-                    const fullDescription = `The riddle nearly shatters your mind. \nThe Doomsayer breaks out into maniacal laughter before melting into a puddle of blood.`;
-                    typeText($('#my_text'), fullDescription, textSpeed, function () { });
-                    gameLog('Kargunt failed the riddle.')
-                    dam = rollD4();
-                    player.health = player.health - dam;
-                    updateStats();
-                    gameLog('Kargunt takes ', dam, ' psychic damage.');
-                    hurtFX();
-                    if (player.health > 0) {
-                        renderOptions([{
-                            text: "Continue",
-                            next_state: 'Advance'
-                        }]);
-                    } else {
-                        renderOptions([{
-                            text: "Continue",
-                            next_state: 'GameOver'
-                        }]);
-                    }
-                    return;
-                } else {
-                    const fullDescription = `You solve the Doomsayer's riddle. Your memory of the answer is taken as payment.\nIn return, the Doomsayer offers you a boon.`;
-                    typeText($('#my_text'), fullDescription, textSpeed, function () { });
-                    gameLog('Kargunt solved the riddle!')
-                    renderOptions([
-                        {
-                            text: "VITALITY",
-                            next_state: 'vitality',
-                        },
-                        {
-                            text: "WEALTH",
-                            next_state: 'wealth',
-                        },
-                        {
-                            text: "POWER",
-                            next_state: 'power'
-                        }
-                    ]);
-                    return;
-                }
-            }
-
-            if (current_state === 'vitality') {
-                player.health = player.maxHealth;
-                healFX();
-                gameLog('Kargunt fully recovers.');
-                updateStats();
-            }
-
-            if (current_state === 'wealth') {
-                player.silver += 10;
+                console.log('Gathered potion');
+                gameLog('Kargunt finds a vial of mysterious fluid embedded in the floor.');
+                break;
+            case 2:
+                randSilver = rollD6();
                 let getSilver = new Audio('/sounds/getmoney.mp3');
                 getSilver.play();
-                gameLog('Kargunt gains 10 silver.');
+                player.silver += randSilver;
+                gameLog('Kargunt picks up', randSilver, 'silver off the floor.');
+                updateStats;
+                break;
+            case 3:
+                break;
+            case 4:
+                break;
+            case 5:
+                break;
+            case 6:
+                break;
+            default:
+                console.log("No case matched");
+        }
+    }
 
+    //Randomly generates a room by combining a room description and an event description. 
+    //The chosen event description dictates what the next state is.
+    function generateRoom() {
+        console.log("Generating Room...");
+        player.roomsVisited += 1;
+        player.totalRoomsVisited += 1;
+        roomsPool = our_game_data.pools.rooms;
+        eventsPool = our_game_data.pools.events;
+
+        randomRoom = roomsPool[Math.floor(Math.random() * roomsPool.length)];
+        randomEvent = eventsPool[Math.floor(Math.random() * eventsPool.length)];
+
+        roomDescription = randomRoom.description;
+        eventDescription = randomEvent.description;
+
+        //Guarantees visit to Merchant every 6 rooms
+        if (player.roomsVisited != 1 && player.roomsVisited % 6 === 0) {
+            eventsPool = our_game_data.pools.fixedEvents;
+            randomEvent = eventsPool[Math.floor(Math.random() * eventsPool.length)];
+            eventDescription = randomEvent.description;
+        }
+
+        if (randomEvent.name === 'Nothing') {
+            roomLoot();
+        }
+
+        if (randomEvent === "Story") {
+            const storyPool = our_game_data.pools.story;
+            const currentStory = storyPool[player.storyIndex];
+            eventDescription = currentStory.text;
+        }
+
+        console.log("\nRoom is: ", randomRoom.name);
+        console.log("\nEvent name: ", randomEvent.name);
+
+        $('#my_options').html('');
+
+        // et current state to HandleEvent after generating the room and event
+        current_state = 'HandleEvent';
+        console.log("Current state is: ", current_state);
+
+        our_game_data['HandleEvent']['text'] = eventDescription;
+        //Save the event type for the next state transition after the player clicks "Proceed"
+        our_game_data['HandleEvent']['next_state'] = randomEvent.type;
+
+        // Update the text to display the room and event
+        const fullDescription = `You enter ${roomDescription}\n\n${eventDescription}`;
+        typeText($('#my_text'), fullDescription, textSpeed);
+
+        const bossMusic = '/sounds/bossmusic.mp3';
+        const battleMusic = '/sounds/confrontation.mp3'
+        if (player.level === 5) {
+            our_game_data['StartCombat']['back_sound'] = bossMusic;
+        } else {
+            our_game_data['StartCombat']['back_sound'] = battleMusic;
+        }
+
+        renderOptions([{
+            text: "Proceed",
+            next_state: our_game_data['HandleEvent']['next_state'] // Transition based on the event type
+        }]);
+        console.log('Player has visited ', player.roomsVisited, 'rooms.')
+    }
+
+    function visit_state(state) {
+        updateStats();
+        clearText();
+        let textElement = $('#my_text');
+
+        //Log the current state and game data
+        console.log("Visiting State:", current_state);
+        console.log("Game Data:", our_game_data);
+
+        if (our_game_data[current_state]['sound'] != null) {
+            var audio = new Audio(our_game_data[current_state]['sound']);
+            audio.play();
+        }
+
+        if (our_game_data[current_state] && 'back_sound' in our_game_data[current_state]) {
+            console.log("Changing music!");
+            bk_audio.pause();
+            if (our_game_data[current_state]['back_sound']) {
+                bk_audio = new Audio(our_game_data[current_state]['back_sound']);
+                bk_audio.play();
+                bk_audio.addEventListener('timeupdate', function () {
+                    var buffer = .44
+                    if (this.currentTime > this.duration - buffer) {
+                        this.currentTime = 0;
+                        this.play();
+                    }
+                });
+            }
+        }
+
+        //Check if the current state exists in the game data
+        if (!our_game_data[current_state]) {
+            console.error("State does not exist in game data:", current_state);
+            return; //Exit early to prevent further errors
+        }
+
+        //Resets players stats
+        if (current_state === 'start') {
+            player.name = "Kargunt";
+            player.health = 20;
+            player.level = 1;
+            player.maxHealth = 20;
+            player.silver = 5;
+            player.weapon = { name: 'Unarmed', roll: 'D4', modifier: -1 };
+            player.armor = null;
+            player.points = 14  ;
+            player.items = [];
+            player.roomsVisited = 0;
+            player.totalPoints = 0;
+            player.totalRoomsVisited = 0;
+            updateInventory();
+        }
+
+        if (current_state === 'gstart') {
+            updateStats();
+        }
+
+        if (current_state === 'GetWeap') {
+            player.weapon = { name: 'Beinrýtingur', roll: 'D4', modifier: 1 };
+            gameLog('Kargunt has equipped Beinrýtingur.');
+            equipFX();
+            updateStats();
+        }
+
+        if (current_state === 'GenerateRoom') {
+            generateRoom();
+            let options = our_game_data[current_state]['next_state'];
+            renderOptions(options);
+            return;
+        }
+
+        //Player encounters shop every 6 rooms
+        if (player.roomsVisited % 6 === 0) {
+
+        }
+
+        if (current_state === 'buyPotion') {
+            let potion = our_game_data.items.Potion;
+            if (player.silver < 5) {
+                our_game_data[current_state]["text"] = "\"You seem to be lacking in coin, chasmwalker. Come back when you have more.\" the Carrion Merchant spits at you."
+            } else {
+                buyFX();
+                player.items.push(potion);
+                player.silver -= 5;
+                updateInventory();
                 updateStats();
+                gameLog('Kargunt purchased a potion.');
             }
+        }
 
-            if (current_state === 'power') {
-                player.points += 5;
-                gameLog('Kargunt absorbs 5 points.');
+        if (current_state === 'buyRope') {
+            let rope = our_game_data.items.Rope;
+            if (player.silver < 2) {
+                our_game_data[current_state]["text"] = "\"You seem to be lacking in coin, chasmwalker. Come back when you have more.\" the Carrion Merchant spits at you."
+            } else {
+                buyFX();
+                player.items.push(rope);
+                player.silver -= 2;
+                updateInventory();
                 updateStats();
+                updateStats();
+                gameLog('Kargunt purchased a rope.');
+            }
+        }
+
+        if (current_state == 'buySword') {
+            if (player.silver < 12) {
+                our_game_data[current_state]["text"] = "\"You seem to be lacking in coin, chasmwalker. Come back when you have more.\" the Carrion Merchant spits at you."
+            } else {
+                let rustSword = our_game_data.items.Weapons["Rust-Serrated Longsword"];
+                player.silver -= 12;
+                player.items.push(rustSword);
+                buyFX();
+                updateInventory();
+                updateStats();
+                gameLog('Kargunt purchased a Rust-Serrated Longsword.');
             }
 
-            if (current_state === 'StartCombat') {
-                selectEnemy();
-                console.log("About to handle combat!");
-                gameLog('Kargunt engages combat!');
-                let options = our_game_data[current_state]['next_state'];
-                renderOptions(options);
-                return; // Ensure we don't execute the rest of the function in combat state
+        }
+
+        if (current_state == 'buyMace') {
+            if (player.silver < 27) {
+                our_game_data[current_state]["text"] = "\"You seem to be lacking in coin, chasmwalker. Come back when you have more.\" the Carrion Merchant spits at you."
+            }
+            else {
+                let corpseCrusher = our_game_data.items.Weapons["Líkkrossari"];
+                player.items.push(corpseCrusher);
+                player.silver -= 27;
+                buyFX();
+                updateInventory();
+                updateStats();
+                gameLog('Kargunt purchased a Líkkrossari.');
             }
 
-            if (current_state === 'combat') {
-                const enemyName = currentEnemy.name;
-                const fullDescription = `${enemyName} awaits your next move.`;
+        }
+
+        if (current_state == 'buyZwei') {
+            if (player.silver < 40) {
+                our_game_data[current_state]["text"] = "\"You seem to be lacking in coin, chasmwalker. Come back when you have more.\" the Carrion Merchant spits at you."
+            } else {
+                let mightyZwei = our_game_data.items.Weapons["Mighty Zweihander"];
+                player.items.push(mightyZwei);
+                player.silver -= 40;
+                buyFX();
+                updateInventory();
+                updateStats();
+                gameLog('Kargunt purchased a Mighty Zweihander.');
+            }
+        }
+
+        if (current_state == 'buyArmor') {
+            if (player.silver < 20) {
+                our_game_data[current_state]["text"] = "\"You seem to be lacking in coin, chasmwalker. Come back when you have more.\" the Carrion Merchant spits at you."
+            } else {
+                let armor = our_game_data.items.Armor["Fleshmail"];
+                player.items.push(armor);
+                player.silver -= 20;
+                buyFX();
+                updateInventory();
+                updateStats();
+                gameLog('Kargunt purchased Fleshmail.');
+            }
+        }
+
+        if (current_state === 'fountain') {
+            healAmount = rollD6() + 4;
+            healFX();
+            player.health += healAmount;
+            gameLog('Kargunt recovers', healAmount, 'health from the fountain.')
+        }
+
+        if (current_state === 'trapCheck') {
+            console.log("Trap triggered!");
+            const ropeIndex = player.items.indexOf("Rope");
+            gameLog('Kargunt has activated a trap.');
+            dodgeRoll = rollD6();
+
+            if (player.items.some(item => item.name === "Rope")) {
+                gameLog("Kargunt uses the Rope to escape the trap!");
+                removeItem("Rope");
+                dodgeRoll += 4;
+            }
+
+            if (dodgeRoll <= 3) {
+                const fullDescription = `You miss the chunk of Chasm-flesh you were hoping to land on. Your feet dip into the bile.\nIt burns.`;
                 typeText($('#my_text'), fullDescription, textSpeed, function () { });
+                gameLog('Kargunt is caught by the trap!');
+                dam = rollD6();
+                player.health = player.health - dam;
+                updateStats();
+                gameLog('Kargunt takes ', dam, ' damage from the trap.');
+                hurtFX();
+                if (player.health > 0) {
+                    renderOptions([{
+                        text: "Continue",
+                        next_state: 'Advance'
+                    }]);
+                } else {
+                    renderOptions([{
+                        text: "Continue",
+                        next_state: 'GameOver'
+                    }]);
+                }
+                return;
+            } else {
+                const fullDescription = `You deftly avoid the sickly fluid, landing to safety on a raised chunk of Chasm-flesh.`;
+                typeText($('#my_text'), fullDescription, textSpeed, function () { });
+                gameLog('Kargunt avoids the trap!')
                 renderOptions([
                     {
-                        text: "ENGAGE",
-                        next_state: 'CombatTurn'
-                    },
-                    {
-                        text: "FLEE",
-                        next_state: 'FleeAttempt'
+                        text: "Continue",
+                        next_state: 'Advance'
                     }
                 ]);
                 return;
             }
+        }
 
-            if (current_state === 'CombatTurn') {
-                console.log("Player's combat turn.");
-                const enemyName = currentEnemy.name;
-                const fullDescription = `You lunge to strike ${enemyName}.`;
+        if (current_state === 'doomsayer') {
+            const riddlePool = our_game_data.pools.riddles;
+            const randomRiddle = riddlePool[Math.floor(Math.random() * riddlePool.length)];
+            const riddleText = randomRiddle.text;
+            our_game_data[current_state]['text'] = riddleText;
+        }
+
+        if (current_state === 'riddleCheck') {
+            console.log("Trap triggered!");
+            gameLog('Kargunt attempts the Doomsayer\'s riddle.');
+            riddleRoll = rollD6();
+            if (riddleRoll % 2 == 0) {
+                const fullDescription = `The riddle nearly shatters your mind. \nThe Doomsayer breaks out into maniacal laughter before melting into a puddle of blood.`;
                 typeText($('#my_text'), fullDescription, textSpeed, function () { });
-                renderOptions([{
-                    text: "ATTACK",
-                    next_state: 'AttackEnemy'
-                }]);
-                renderOptions(options);
-            }
-
-            if (current_state === 'GameOver') {
+                gameLog('Kargunt failed the riddle.')
+                dam = rollD4();
+                player.health = player.health - dam;
                 updateStats();
-                gameLog('Kargunt has been consumed by the CORPSE CHASM.');
-                gameLog('Explored ', player.totalRoomsVisited, 'rooms and accumulated', player.totalPoints, 'points this run.');
-            }
-
-            if (current_state === 'Victory') {
-                let potion = our_game_data.items.Potion;
-                gameLog('Kargunt has slain ', currentEnemy.name, "!");
-                const enemyName = currentEnemy.name;
-                const enemyPoints = currentEnemy.points + 1;
-                const fullDescription = `${enemyName} lies dead at your feet. Absorbed ${enemyPoints} points.`;
-                player.points += enemyPoints;
-                player.totalPoints += enemyPoints;
-                currentEnemy.health = currentEnemy.maxHealth //Reset enemy to maximum health for next time it is encountered
-                updateStats();
-                typeText($('#my_text'), fullDescription, textSpeed, function () { });
-
-                lootRoll = rollD6();
-
-                let getSilver = new Audio('/sounds/getmoney.mp3');
-
-                switch (lootRoll) {
-                    case 1:
-                        healthRegain = rollD6()
-                        gameLog('Kargunt takes a moment to rest.');
-                        gameLog('Kargunt recovers', healthRegain, 'HP.');
-                        healFX();
-                        updateStats();
-                        break;
-                    case 2:
-                        randSilver = rollD6() + 3;
-                        player.silver += randSilver;
-                        getSilver.play();
-                        gameLog('Kargunt recovers', randSilver, 'silver from the monster\'s corpse.');
-                        updateStats();
-                        break;
-                    case 3:
-                        randSilver = rollD6() + 4;
-                        player.silver += randSilver;
-                        getSilver.play();
-                        gameLog('Kargunt recovers', randSilver, 'silver from the monster\'s corpse.');
-                        updateStats();
-                        break;
-                    case 4:
-                        randSilver = rollD6() + 5;
-                        player.silver += randSilver;
-                        getSilver.play();
-                        gameLog('Kargunt recovers', randSilver, 'silver from the monster\'s corpse.');
-                        updateStats();
-                        break;
-                    case 5:
-                        randSilver = rollD6() + 6;
-                        player.silver += randSilver;
-                        getSilver.play();
-                        gameLog('Kargunt recovers', randSilver, 'silver from the monster\'s corpse.');
-                        updateStats();
-                        break;
-                    case 6:
-                        player.items.push(potion);
-                        updateInventory();
-                        console.log('Gathered potion');
-                        gameLog('Kargunt gathers the creatures fluids to create a potion.');
-                        break;
-                        break;
-                    default:
-                        console.log("No case matched");
-                }
-
-                if (currentEnemy.name != 'Corpse Basilisk') {
-                    renderOptions([{
-                        text: "Proceed",
-                        next_state: 'postCombatAdvance'
-                    }]);
-                } else {
-                    renderOptions([{
-                        text: "Proceed",
-                        next_state: 'EndGame'
-                    }]);
-                }
-
-
-                return;
-            }
-
-            if (current_state === 'EndGame') {
-                renderOptions([{
-                    text: "Exit the Chasm",
-                    next_state: 'EndGame2'
-                }]);
-            }
-
-            if (current_state === 'EndGame2') {
-                gameLog('Kargunt has escaped the CORPSE CHASM.')
-                gameLog('Explored ', player.totalRoomsVisited, 'rooms and accumulated', player.totalPoints, 'points this run.');
-                renderOptions([{
-                    text: "Play Again",
-                    next_state: 'start'
-                }]);
-            }
-
-            if (current_state === 'AttackEnemy') {
-                console.log("Player attacks.");
-                const enemyName = currentEnemy.name;
-                attackRoll = rollD6();
-                if (attackRoll <= currentEnemy.points) {
-                    gameLog('Kargunt misses!');
-                    const fullDescription = `${enemyName} dodges your attack! It takes the opportunity to strike.`;
-                    typeText($('#my_text'), fullDescription, textSpeed, function () { });
-                    if (currentEnemy.attack == "D4") {
-                        enemyDamage = rollD4();
-                    }
-                    if (currentEnemy.attack == "D6") {
-                        enemyDamage = rollD6();
-                    }
-                    if (player.armor != null) { //If player has armor equipped, reduce damage dealt by D4
-                        enemyDamage -= rollD4();
-                        if (enemyDamage < 0) {
-                            enemyDamage = 0;
-                            gameLog("Kargunt's armor negates the attack!");
-                        }
-                    }
-                    player.health = player.health - enemyDamage - currentEnemy.modifier;
-                    gameLog(currentEnemy.name, ' strikes Kargunt for ', enemyDamage + currentEnemy.modifier, ' damage.')
-                    updateStats();
-                    hurtFX();
-                    if (player.health > 0) {
-                        renderOptions([{
-                            text: "Continue",
-                            next_state: 'combat'
-                        }]);
-                    } else {
-                        renderOptions([{
-                            text: "Continue",
-                            next_state: 'GameOver'
-                        }]);
-                    }
-                    return;
-                } else {
-                    gameLog('Kargunt hits!');
-                    const fullDescription = `${enemyName} lets out a cry in pain as your weapon connects with its body.`;
-                    typeText($('#my_text'), fullDescription, textSpeed, function () { });
-                    damageRoll = rollD4();
-                    if (player.weapon.attackRoll == "D4") {
-                        damageRoll = rollD4();
-                    }
-                    if (player.weapon.attackRoll == "D6") {
-                        damageRoll = rollD6();
-                    }
-                    currentEnemy.health = currentEnemy.health - damageRoll - player.weapon.modifier;
-                    console.log(currentEnemy.name, " has ", currentEnemy.health, "health.")
-                    gameLog('Kargunt strikes', currentEnemy.name, ' for ', damageRoll + player.weapon.modifier, ' damage.')
-                    damageFX();
-                    if (currentEnemy.health > 0) {
-                        renderOptions([{
-                            text: "Continue",
-                            next_state: 'combat'
-                        }]);
-                    } else {
-                        renderOptions([{
-                            text: "Continue",
-                            next_state: 'Victory'
-                        }]);
-                    }
-                    return;
-                }
-
-                const fullDescription = `You lunge to strike ${enemyName}.`;
-                typeText($('#my_text'), fullDescription, textSpeed, function () { });
-                renderOptions([{
-                    text: "ATTACK",
-                    next_state: 'AttackEnemy'
-                }]);
-                renderOptions(options);  // Show buttons for Attack or Flee
-            }
-
-            if (current_state === 'GiveUp') {
-                gameLog('Kargunt has become one with the CORPSE CHASM.')
-            }
-
-            if (current_state === 'FleeAttempt') {
-                console.log("Attempting to flee combat!");
-                gameLog('Attempting to flee!');
-                if (rollD6() <= 3) {
-                    console.log("Flee success!");
-                    gameLog('Successfully fled!');
-
-                    current_state = 'postCombatAdvance';
-                    const enemyName = currentEnemy.name;
-                    const fullDescription = `You barely escape ${enemyName} with your life.`;
-
-                    typeText($('#my_text'), fullDescription, textSpeed, function () { });
-
+                gameLog('Kargunt takes ', dam, ' psychic damage.');
+                hurtFX();
+                if (player.health > 0) {
                     renderOptions([{
                         text: "Continue",
-                        next_state: current_state
+                        next_state: 'Advance'
                     }]);
-
-                    return;
                 } else {
-                    console.log("Flee failed!");
-                    gameLog('Failed to flee!');
-
-                    current_state = 'CombatTurn';
-                    const enemyName = currentEnemy.name;
-                    const fullDescription = `${enemyName} blocks your exit. There is no escape.`;
-                    gameLog('The enemy makes the first strike.');
-                    dam = rollD4();
-                    player.health = player.health - dam;
-                    gameLog('Kargunt takes ', dam, ' damage!');
-                    updateStats();
-                    hurtFX();
-                    if (player.health > 0) {
-                        renderOptions([{
-                            text: "Continue",
-                            next_state: 'combat'
-                        }]);
-                    } else {
-                        renderOptions([{
-                            text: "Continue",
-                            next_state: 'GameOver'
-                        }]);
+                    renderOptions([{
+                        text: "Continue",
+                        next_state: 'GameOver'
+                    }]);
+                }
+                return;
+            } else {
+                const fullDescription = `You solve the Doomsayer's riddle. Your memory of the answer is taken as payment.\nIn return, the Doomsayer offers you a boon.`;
+                typeText($('#my_text'), fullDescription, textSpeed, function () { });
+                gameLog('Kargunt solved the riddle!')
+                renderOptions([
+                    {
+                        text: "VITALITY",
+                        next_state: 'vitality',
+                    },
+                    {
+                        text: "WEALTH",
+                        next_state: 'wealth',
+                    },
+                    {
+                        text: "POWER",
+                        next_state: 'power'
                     }
-
-                    typeText($('#my_text'), fullDescription, textSpeed, function () { });
-
-                    return;
-                }
+                ]);
+                return;
             }
+        }
 
-            // Check if there is text to display
-            if (our_game_data[current_state]['text'] != null) {
-                let stateText = our_game_data[current_state]['text'];
-                if (stateText) {
-                    console.log(our_game_data[current_state['text']])
-                    stateText = stateText.replace(/<[^>]*>/g, '');
-                    let typingSpeed = textSpeed;
-                    typeText(textElement, stateText, typingSpeed, function () {
-                        showAsciiArt();
-                    });
-                } else {
-                    textElement.hide();
-                }
-            } else {
-                console.warn("No text found for current state:", current_state);
-            }
+        if (current_state === 'vitality') {
+            player.health = player.maxHealth;
+            healFX();
+            gameLog('Kargunt fully recovers.');
+            updateStats();
+        }
 
-            if (our_game_data[current_state]['img'] != null) {
-                $("#my_img").attr("src", our_game_data[current_state]['img']);
-                $('#my_img').show();
-            } else {
-                $('#my_img').hide();
-            }
+        if (current_state === 'wealth') {
+            player.silver += 10;
+            let getSilver = new Audio('/sounds/getmoney.mp3');
+            getSilver.play();
+            gameLog('Kargunt gains 10 silver.');
 
+            updateStats();
+        }
+
+        if (current_state === 'power') {
+            player.points += 5;
+            gameLog('Kargunt absorbs 5 points.');
+            updateStats();
+        }
+
+        if (current_state === 'StartCombat') {
+            selectEnemy();
+            console.log("About to handle combat!");
+            gameLog('Kargunt engages combat!');
             let options = our_game_data[current_state]['next_state'];
+            renderOptions(options);
+            return; // Ensure we don't execute the rest of the function in combat state
+        }
+
+        if (current_state === 'combat') {
+            const enemyName = currentEnemy.name;
+            const fullDescription = `${enemyName} awaits your next move.`;
+            typeText($('#my_text'), fullDescription, textSpeed, function () { });
+            renderOptions([
+                {
+                    text: "ENGAGE",
+                    next_state: 'CombatTurn'
+                },
+                {
+                    text: "FLEE",
+                    next_state: 'FleeAttempt'
+                }
+            ]);
+            return;
+        }
+
+        if (current_state === 'CombatTurn') {
+            console.log("Player's combat turn.");
+            const enemyName = currentEnemy.name;
+            const fullDescription = `You lunge to strike ${enemyName}.`;
+            typeText($('#my_text'), fullDescription, textSpeed, function () { });
+            renderOptions([{
+                text: "ATTACK",
+                next_state: 'AttackEnemy'
+            }]);
             renderOptions(options);
         }
 
-        $(document).ready(function () {
-            setTimeout(function () {
-                $.getJSON("game_def.json", function (data) {
-                    our_game_data = data;
-                    visit_state(current_state);
-                });
-            }, 1000);
-        });
+        if (current_state === 'GameOver') {
+            updateStats();
+            gameLog('Kargunt has been consumed by the CORPSE CHASM.');
+            gameLog('Explored ', player.totalRoomsVisited, 'rooms and accumulated', player.totalPoints, 'points this run.');
+        }
 
-        //Reads ASCII art from game data and displays it with scanText render effect
-        function showAsciiArt() {
-            if (our_game_data[current_state]['ascii-art'] != null) {
-                let asciiElement = $('<div class="ascii-art"></div>');
-                $('#my_text').append(asciiElement);
-                let asciiArt = our_game_data[current_state]['ascii-art'];
-                let scanningSpeed = 200;
-                scanText(asciiElement, asciiArt, scanningSpeed);
+        if (current_state === 'Victory') {
+            let potion = our_game_data.items.Potion;
+            gameLog('Kargunt has slain ', currentEnemy.name, "!");
+            const enemyName = currentEnemy.name;
+            const enemyPoints = currentEnemy.points + 1;
+            const fullDescription = `${enemyName} lies dead at your feet. Absorbed ${enemyPoints} points.`;
+            player.points += enemyPoints;
+            player.totalPoints += enemyPoints;
+            currentEnemy.health = currentEnemy.maxHealth //Reset enemy to maximum health for next time it is encountered
+            updateStats();
+            typeText($('#my_text'), fullDescription, textSpeed, function () { });
+
+            lootRoll = rollD6();
+
+            let getSilver = new Audio('/sounds/getmoney.mp3');
+
+            switch (lootRoll) {
+                case 1:
+                    healthRegain = rollD6()
+                    gameLog('Kargunt takes a moment to rest.');
+                    gameLog('Kargunt recovers', healthRegain, 'HP.');
+                    healFX();
+                    updateStats();
+                    break;
+                case 2:
+                    randSilver = rollD6() + 3;
+                    player.silver += randSilver;
+                    getSilver.play();
+                    gameLog('Kargunt recovers', randSilver, 'silver from the monster\'s corpse.');
+                    updateStats();
+                    break;
+                case 3:
+                    randSilver = rollD6() + 4;
+                    player.silver += randSilver;
+                    getSilver.play();
+                    gameLog('Kargunt recovers', randSilver, 'silver from the monster\'s corpse.');
+                    updateStats();
+                    break;
+                case 4:
+                    randSilver = rollD6() + 5;
+                    player.silver += randSilver;
+                    getSilver.play();
+                    gameLog('Kargunt recovers', randSilver, 'silver from the monster\'s corpse.');
+                    updateStats();
+                    break;
+                case 5:
+                    randSilver = rollD6() + 6;
+                    player.silver += randSilver;
+                    getSilver.play();
+                    gameLog('Kargunt recovers', randSilver, 'silver from the monster\'s corpse.');
+                    updateStats();
+                    break;
+                case 6:
+                    player.items.push(potion);
+                    updateInventory();
+                    console.log('Gathered potion');
+                    gameLog('Kargunt gathers the creatures fluids to create a potion.');
+                    break;
+                    break;
+                default:
+                    console.log("No case matched");
             }
-        }
 
-        function flashScreen(color) {
-            $('#overlay').css('background-color', color).fadeIn(300, function () { // Fade in slowly
-                setTimeout(() => {
-                    $(this).fadeOut(300, function () {
-                        $(this).css('background-color', 'transparent');
-                    });
-                }, 100);
-            });
-        }
-
-        //Game console log logic, gameLog adds log message to queue and then queue processes in order with 500ms delay
-        let logQueue = [];
-        let isProcessing = false;
-        const logDelay = 500;
-        function gameLog(...args) {
-            const message = args.join(' ');
-            logQueue.push(message);
-            if (!isProcessing) {
-                processLogQueue();
+            if (currentEnemy.name != 'Corpse Basilisk') {
+                renderOptions([{
+                    text: "Proceed",
+                    next_state: 'postCombatAdvance'
+                }]);
+            } else {
+                renderOptions([{
+                    text: "Proceed",
+                    next_state: 'EndGame'
+                }]);
             }
+
+
+            return;
         }
 
-        function processLogQueue() {
-            if (logQueue.length === 0) {
-                isProcessing = false;
+        if (current_state === 'EndGame') {
+            renderOptions([{
+                text: "Exit the Chasm",
+                next_state: 'EndGame2'
+            }]);
+        }
+
+        if (current_state === 'EndGame2') {
+            gameLog('Kargunt has escaped the CORPSE CHASM.')
+            gameLog('Explored ', player.totalRoomsVisited, 'rooms and accumulated', player.totalPoints, 'points this run.');
+            renderOptions([{
+                text: "Play Again",
+                next_state: 'start'
+            }]);
+        }
+
+        if (current_state === 'AttackEnemy') {
+            console.log("Player attacks.");
+            const enemyName = currentEnemy.name;
+            attackRoll = rollD6();
+            if (attackRoll <= currentEnemy.points) {
+                gameLog('Kargunt misses!');
+                const fullDescription = `${enemyName} dodges your attack! It takes the opportunity to strike.`;
+                typeText($('#my_text'), fullDescription, textSpeed, function () { });
+                if (currentEnemy.attack == "D4") {
+                    enemyDamage = rollD4();
+                }
+                if (currentEnemy.attack == "D6") {
+                    enemyDamage = rollD6();
+                }
+                if (player.armor != null) { //If player has armor equipped, reduce damage dealt by D4
+                    enemyDamage -= rollD4();
+                    if (enemyDamage < 0) {
+                        enemyDamage = 0;
+                        gameLog("Kargunt's armor negates the attack!");
+                    }
+                }
+                player.health = player.health - enemyDamage - currentEnemy.modifier;
+                gameLog(currentEnemy.name, ' strikes Kargunt for ', enemyDamage + currentEnemy.modifier, ' damage.')
+                updateStats();
+                hurtFX();
+                if (player.health > 0) {
+                    renderOptions([{
+                        text: "Continue",
+                        next_state: 'combat'
+                    }]);
+                } else {
+                    renderOptions([{
+                        text: "Continue",
+                        next_state: 'GameOver'
+                    }]);
+                }
+                return;
+            } else {
+                gameLog('Kargunt hits!');
+                const fullDescription = `${enemyName} lets out a cry in pain as your weapon connects with its body.`;
+                typeText($('#my_text'), fullDescription, textSpeed, function () { });
+                damageRoll = rollD4();
+                if (player.weapon.attackRoll == "D4") {
+                    damageRoll = rollD4();
+                }
+                if (player.weapon.attackRoll == "D6") {
+                    damageRoll = rollD6();
+                }
+                currentEnemy.health = currentEnemy.health - damageRoll - player.weapon.modifier;
+                console.log(currentEnemy.name, " has ", currentEnemy.health, "health.")
+                gameLog('Kargunt strikes', currentEnemy.name, ' for ', damageRoll + player.weapon.modifier, ' damage.')
+                damageFX();
+                if (currentEnemy.health > 0) {
+                    renderOptions([{
+                        text: "Continue",
+                        next_state: 'combat'
+                    }]);
+                } else {
+                    renderOptions([{
+                        text: "Continue",
+                        next_state: 'Victory'
+                    }]);
+                }
                 return;
             }
-            isProcessing = true;
-            const message = logQueue.shift();
-            const p = document.createElement('p');
-            p.textContent = message;
-            const consoleDiv = document.getElementById('game-console');
-            consoleDiv.appendChild(p);
-            consoleDiv.scrollTop = consoleDiv.scrollHeight;
-            setTimeout(processLogQueue, logDelay);
+
+            const fullDescription = `You lunge to strike ${enemyName}.`;
+            typeText($('#my_text'), fullDescription, textSpeed, function () { });
+            renderOptions([{
+                text: "ATTACK",
+                next_state: 'AttackEnemy'
+            }]);
+            renderOptions(options);  // Show buttons for Attack or Flee
         }
-    </script>
+
+        if (current_state === 'GiveUp') {
+            gameLog('Kargunt has become one with the CORPSE CHASM.')
+        }
+
+        if (current_state === 'FleeAttempt') {
+            console.log("Attempting to flee combat!");
+            gameLog('Attempting to flee!');
+            if (rollD6() <= 3) {
+                console.log("Flee success!");
+                gameLog('Successfully fled!');
+
+                current_state = 'postCombatAdvance';
+                const enemyName = currentEnemy.name;
+                const fullDescription = `You barely escape ${enemyName} with your life.`;
+
+                typeText($('#my_text'), fullDescription, textSpeed, function () { });
+
+                renderOptions([{
+                    text: "Continue",
+                    next_state: current_state
+                }]);
+
+                return;
+            } else {
+                console.log("Flee failed!");
+                gameLog('Failed to flee!');
+
+                current_state = 'CombatTurn';
+                const enemyName = currentEnemy.name;
+                const fullDescription = `${enemyName} blocks your exit. There is no escape.`;
+                gameLog('The enemy makes the first strike.');
+                dam = rollD4();
+                player.health = player.health - dam;
+                gameLog('Kargunt takes ', dam, ' damage!');
+                updateStats();
+                hurtFX();
+                if (player.health > 0) {
+                    renderOptions([{
+                        text: "Continue",
+                        next_state: 'combat'
+                    }]);
+                } else {
+                    renderOptions([{
+                        text: "Continue",
+                        next_state: 'GameOver'
+                    }]);
+                }
+
+                typeText($('#my_text'), fullDescription, textSpeed, function () { });
+
+                return;
+            }
+        }
+
+        // Check if there is text to display
+        if (our_game_data[current_state]['text'] != null) {
+            let stateText = our_game_data[current_state]['text'];
+            if (stateText) {
+                console.log(our_game_data[current_state['text']])
+                stateText = stateText.replace(/<[^>]*>/g, '');
+                let typingSpeed = textSpeed;
+                typeText(textElement, stateText, typingSpeed, function () {
+                    showAsciiArt();
+                });
+            } else {
+                textElement.hide();
+            }
+        } else {
+            console.warn("No text found for current state:", current_state);
+        }
+
+        if (our_game_data[current_state]['img'] != null) {
+            $("#my_img").attr("src", our_game_data[current_state]['img']);
+            $('#my_img').show();
+        } else {
+            $('#my_img').hide();
+        }
+
+        let options = our_game_data[current_state]['next_state'];
+        renderOptions(options);
+    }
+
+    $(document).ready(function () {
+        setTimeout(function () {
+            $.getJSON("game_def.json", function (data) {
+                our_game_data = data;
+                visit_state(current_state);
+            });
+        }, 1000);
+    });
+
+    //Reads ASCII art from game data and displays it with scanText render effect
+    function showAsciiArt() {
+        if (our_game_data[current_state]['ascii-art'] != null) {
+            let asciiElement = $('<div class="ascii-art"></div>');
+            $('#my_text').append(asciiElement);
+            let asciiArt = our_game_data[current_state]['ascii-art'];
+            let scanningSpeed = 200;
+            scanText(asciiElement, asciiArt, scanningSpeed);
+        }
+    }
+    function flashScreen(color) {
+        $('#overlay').css('background-color', color).fadeIn(300, function () { // Fade in slowly
+            setTimeout(() => {
+                $(this).fadeOut(300, function () {
+                    $(this).css('background-color', 'transparent'); // Reset color after fade out
+                });
+            }, 100);
+        });
+    }
+
+    //Game console log logic, gameLog adds log message to queue and then queue processes in order with 500ms delay
+    let logQueue = [];
+    let isProcessing = false;
+    const logDelay = 500;
+    function gameLog(...args) {
+        const message = args.join(' ');
+        logQueue.push(message);
+        if (!isProcessing) {
+            processLogQueue();
+        }
+    }
+
+    function processLogQueue() {
+        if (logQueue.length === 0) {
+            isProcessing = false;
+            return;
+        }
+        isProcessing = true;
+        const message = logQueue.shift();
+        const p = document.createElement('p');
+        p.textContent = message;
+        const consoleDiv = document.getElementById('game-console');
+        consoleDiv.appendChild(p);
+        consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        setTimeout(processLogQueue, logDelay);
+    }
+</script>
 
 </body>
 
