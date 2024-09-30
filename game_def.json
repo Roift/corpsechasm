@@ -357,7 +357,7 @@
         ]
     },
     "fountain": {
-        "text": "The fountain flows freely with the fluid of life, inviting you to imbibe.\nThe sillouhettes of faces lurk in the pool's reflection.\nYou imbibe greedily from the fountain.",
+        "text": "The fountain flows freely with the fluid of life, inviting you to imbibe. The sillouhettes of faces lurk in the pool's reflection.\nYou imbibe greedily from the fountain.",
         "next_state": [
             {
                 "type": "button",
