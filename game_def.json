@@ -104,7 +104,7 @@
         ]
     },
     "doomsayer": {
-        "text": "\n",
+        "text": "",
         "next_state": [
             {
                 "type": "button",
@@ -126,7 +126,7 @@
         "next_state": [
             {
                 "type": "button",
-                "text": "Potion (heal D6) | 4s",
+                "text": "Potion (heal D6) | 6s",
                 "next_state": "buyPotion"
             },
             {
@@ -134,19 +134,19 @@
                 "next_state": "buyRope"
             },
             {
-                "text": "Fleshmail (-D4) | 10s",
+                "text": "Fleshmail (-D4) | 20s",
                 "next_state": "buyArmor"
             },
             {
-                "text": "Rust-Serrated Longsword (D6+1) | 12s",
+                "text": "Rust-Serrated Longsword (D6) | 18s",
                 "next_state": "buySword"
             },
             {
-                "text": "Líkkrossari (D6) | 16s",
+                "text": "Líkkrossari (D6+1) | 27s",
                 "next_state": "buyMace"
             },
             {
-                "text": "Mighty Zweihander (D6+2) | 25s",
+                "text": "Mighty Zweihander (D6+2) | 40s",
                 "next_state": "buyZwei"
             },
             {
@@ -172,11 +172,11 @@
                 "next_state": "buyArmor"
             },
             {
-                "text": "Sword (D6+1) | 12s",
+                "text": "Rust-Serrated Longsword (D6) | 12s",
                 "next_state": "buySword"
             },
             {
-                "text": "Líkkrossari (D6) | 9s",
+                "text": "Líkkrossari (D6+1) | 16s",
                 "next_state": "buyMace"
             },
             {
@@ -219,6 +219,21 @@
             }
         ]
     },
+    "buyArmor": {
+        "text": "The forged flesh reeks of death. It is, however, tougher than leather. It should do an adequate job of protecting your own flesh.",
+        "next_state": [
+            {
+                "type": "button",
+                "text": "Continue Shopping",
+                "next_state": "shopNoMusic"
+            },
+            {
+                "type": "button",
+                "text": "Leave",
+                "next_state": "postCombatAdvance"
+            }
+        ]
+    },
     "buySword": {
         "text": "The sword is rusted and unbalanced, but its dullness has taken it to a point of brutal serration.",
         "next_state": [
@@ -235,7 +250,7 @@
         ]
     },
     "buyMace": {
-        "text": "The greatmace has obviously been used.\nRecently.\nBits of flesh are stuck to its spikes.",
+        "text": "The greatmace has obviously been used. Recently.\nBits of flesh are stuck to its spikes.",
         "next_state": [
             {
                 "type": "button",
@@ -264,7 +279,6 @@
             }
         ]
     },
-
     "vitality": {
         "text": "The Doomsayer slices a gash down their forearm. Oily blood begins to ooze freely from the wound.\nThey invite you to imbibe.",
         "next_state": [
@@ -456,6 +470,57 @@
             {
                 "name": "Vein Passage",
                 "description": "a narrow passageway that resembles a vein, pulsing rhythmically, with a slick glistening surface underfoot."
+            },
+            {
+                "name": "Bone Hall",
+                "description": "a grand hall with jagged, bone-like structures forming grotesque arches. The walls are slick with dark, oozing fluids."
+            },
+            {
+                "name": "Spore Chamber",
+                "description": "a cavernous space filled with thick spores hanging in the air, coating everything in a layer of fungal growth."
+            },
+            {
+                "name": "Digestive Chasm",
+                "description": "a deep chasm filled with bubbling acid pools, where chunks of decaying flesh slowly dissolve in the corrosive mire."
+            },
+            {
+                "name": "Sinew Tunnel",
+                "description": "a tight, sinew-laden tunnel, its fibrous walls pulsating in a nauseating rhythm as if the place were alive."
+            },
+            {
+                "name": "Organ Rotunda",
+                "description": "a circular chamber where massive, throbbing organs hang from the ceiling, dripping bile into pools of thick fluid below."
+            },
+            {
+                "name": "Tendon Bridge",
+                "description": "a narrow bridge made of taut tendons, stretching precariously across a pit filled with rotting meat and bones."
+            },
+            {
+                "name": "Womb Chamber",
+                "description": "a disturbing, womb-like chamber, its fleshy walls twitching in response to movement, and a faint heartbeat reverberating through the air."
+            },
+            {
+                "name": "Cyst Cavern",
+                "description": "a cavern pocked with large, swollen cysts hanging from the ceiling, their translucent membranes pulsing with a sickly glow."
+            },
+            {
+                "name": "Cartilage Maze",
+                "description": "a maze of calcified cartilage, where each turn is marked by the snap and crack of brittle bones underfoot."
+            },
+            {
+                "name": "Blistered Passage",
+                "description": "a passage lined with engorged blisters, some bursting with a foul-smelling ichor as you pass."
+            }
+        ],
+        "story": [
+            {
+                "text": "Placeholder 1"
+            },
+            {
+                "text": "Placeholder 2"
+            },
+            {
+                "text": "Placeholder 3"
             }
         ],
         "events": [
@@ -483,37 +548,33 @@
                 "name": "Monster2",
                 "description": "A creature emerges from the shadows. Its stench overwhelms your senses.",
                 "type": "StartCombat"
-            },
+            }
+        ],
+        "fixedEvents": [
             {
                 "name": "Merchant",
                 "description": "You notice and follow the telltale scent of a Carrion Merchant.\nDraped in ragged furs and poorly tanned leather, they sift through decaying remains,\npulling out bone and innards with a practiced hand.\n\n\"Care to trade?\" they rasp, their voice like grinding bones. \"Fresh from the dead.\"",
                 "type": "shop"
             }
         ],
-        "enemies": [
-            {
-                "name": "Crowmeat",
-                "description": "Its tall and gaunt figure is wet with pink flesh and a malnourished humanoid frame.\nIts head is a poor facsimile of a raven, and iron blades extend from its wrists to its elbows.",
-                "points": 4,
-                "attack": "D4",
-                "modifier": 0,
-                "health": 7
-            },
+        "weakEnemies": [
             {
                 "name": "Blood-Drenched Skeleton",
                 "description": "The shambling form of a once-person. Its skeletal frame is shiny with bright red viscera.",
                 "points": 2,
                 "attack": "D4",
                 "modifier": 0,
-                "health": 6
+                "health": 6,
+                "maxHealth": 6
             },
             {
                 "name": "Chasm Cultist",
                 "description": "The cultist is draped in clothing stitched of flesh.\nThey whisper madly in a wet-sounding forbidden tongue, cursing your existence.",
                 "points": 1,
                 "attack": "D4",
-                "modifier": 0,
-                "health": 6
+                "modifier": 1,
+                "health": 6,
+                "maxHealth": 6
             },
             {
                 "name": "Flesh Goblin",
@@ -521,53 +582,77 @@
                 "points": 3,
                 "attack": "D4",
                 "modifier": 0,
-                "health": 5
+                "health": 5,
+                "maxHealth": 5
             },
             {
                 "name": "Amorphous Shame",
-                "description": "Its ambiguous gray form saddens you.",
+                "description": "The creature's grey form warps and shifts before your perception.\nYet no matter what form it takes, it retains rows and rows of razor sharp teeth.",
+                "points": 4,
+                "attack": "D6",
+                "modifier": 2,
+                "health": 8,
+                "maxHealth": 8
+            }
+        ],
+        "toughEnemies": [
+            {
+                "name": "Crowmeat",
+                "description": "Its tall and gaunt figure is wet with pink flesh and a malnourished humanoid frame.\nIts head is a poor facsimile of a raven, and iron blades extend from its wrists to its elbows.",
+                "points": 3,
+                "attack": "D6",
+                "modifier": 3,
+                "health": 16,
+                "maxHealth": 16
+            },
+            {
+                "name": "Macrobacterium",
+                "description": "A slime of ginormous bacterium. The massive, acidic single-celled organism craves violence.",
                 "points": 2,
+                "attack": "D4",
+                "modifier": 2,
+                "health": 25,
+                "maxHealth": 25
+            },
+            {
+                "name": "Veinstalker",
+                "description": "Who knows how long it has been following you? The hound-like creature made entirely of tendrils pounces towards you.",
+                "points": 4,
                 "attack": "D6",
                 "modifier": 0,
-                "health": 8
+                "health": 20,
+                "maxHealth": 20
             },
             {
                 "name": "Corpse Basilisk",
                 "description": "The Chasm itself yearns for your end. You face all who have been consumed.",
-                "points": 3,
-                "attack": "D6",
-                "modifier": 0,
-                "health": 11
-            },
-            {
-                "name": "Macrobacterium",
-                "description": "A slime of ginormous bacterium. The single-celled organism craves violence.",
                 "points": 2,
-                "attack": "D4",
-                "modifier": 0,
-                "health": 9
+                "attack": "D6",
+                "modifier": 4,
+                "health": 40,
+                "maxHealth": 40
             }
         ],
         "riddles": [
             {
                 "name": "1",
-                "text": ".\"When the sky is swallowed by flesh and bone,\nWhat remains of light once known?\nWhen the Chasm breathes and stars decay,\nWhere will the living find their way?\""
+                "text": "\"When the sky is swallowed by flesh and bone,\nWhat remains of light once known?\nWhen the Chasm breathes and stars decay,\nWhere will the living find their way?\""
             },
             {
                 "name": "2",
-                "text": ".\"The mouth of the world opens wide,\nThrough it, the Heavens slide.\nWhat teeth gnash the souls of men,\nAnd when it's done, will it start again?\""
+                "text": "\"The mouth of the world opens wide,\nThrough it, the Heavens slide.\nWhat teeth gnash the souls of men,\nAnd when it's done, will it start again?\""
             },
             {
                 "name": "3",
-                "text": ".\"The marrow of life is stripped to the core,\nThe Chasm craves but always more.\nWhat remains when all is fed,\nAnd who will count the countless dead?\""
+                "text": "\"The marrow of life is stripped to the core,\nThe Chasm craves but always more.\nWhat remains when all is fed,\nAnd who will count the countless dead?\""
             },
             {
                 "name": "4",
-                "text": ".\"A pit with no bottom, no walls to see,\nA place where flesh and spirit flee.\nWho dares to look into its maw,\nAnd who will break the final law?\""
+                "text": "\"A pit with no bottom, no walls to see,\nA place where flesh and spirit flee.\nWho dares to look into its maw,\nAnd who will break the final law?\""
             },
             {
                 "name": "5",
-                "text": ".\"The end begins with a single breath,\nFrom the Chasm's maw comes endless death.\nWhat stirs within the hollow tomb,\nAnd who will face their final doom?\""
+                "text": "\"The end begins with a single breath,\nFrom the Chasm's maw comes endless death.\nWhat stirs within the hollow tomb,\nAnd who will face their final doom?\""
             }
         ]
     },
@@ -587,33 +672,38 @@
                 "type": "escape"
             }
         },
+        "Armor": {
+            "Fleshmail": {
+                "name": "Fleshmail",
+                "roll": "D4"
+            }
+        },
         "Weapons": {
             "Beinrýtingur": {
+                "name": "Beinrýtingur",
                 "roll": "D4",
                 "modifier": "1",
                 "description": "A sharp dagger of bone ripped from the chasm."
             },
             "Crowblade": {
-                "attack": "d6",
+                "name": "Crowblade",
+                "attack": "D6",
                 "modifier": "0",
                 "description": "The long talon that extends up the forearm of Crowmeat."
             },
-            "Rust-Serrated Longsword":
-            {
-                "name":  "Rust-Serrated Longsword",
-                "attack": "d4",
+            "Rust-Serrated Longsword": {
+                "name": "Rust-Serrated Longsword",
+                "attack": "D4",
                 "modifier": "2"
             },
-            "Líkkrossari":
-            {
+            "Líkkrossari": {
                 "name": "Líkkrossari",
-                "attack": "d6",
+                "attack": "D6",
                 "modifier": "1"
             },
-            "Mighty Zweihander":
-            {
+            "Mighty Zweihander": {
                 "name": "Mighty Zweihander",
-                "attack": "d6",
+                "attack": "D6",
                 "modifier": "2"
             }
         }

@@ -189,6 +189,7 @@
             name: "Kargunt",
             health: 15,
             maxHealth: 15,
+            level: 1,
             silver: 15,
             weapon: { name: "Unarmed", roll: "D4", modifier: -1 },
             armor: null,
@@ -207,6 +208,7 @@
             const statsContent = `
             <strong>Name:</strong> ${player.name}<br>
             <strong>HP:</strong> ${player.health}/${player.maxHealth}<br>
+            <strong>Level:</strong> ${player.level}<br>
             <strong>Silver:</strong> ${player.silver}<br>
             <strong>Weapon:</strong> ${player.weapon.name} (Attack: ${player.weapon.roll}${modifierDisplay})<br>
             <strong>Armor:</strong> ${player.armor ? player.armor : 'None'}<br>
@@ -218,6 +220,7 @@
                 player.roomsVisited = 0;
                 player.maxHealth += 5;
                 player.health += 5;
+                player.level += 1;
                 gameLog('Kargunt has leveled up! Max health increased.')
                 let levelUp = new Audio('/sounds/levelup.mp3');
                 levelUp.play();
@@ -230,6 +233,7 @@
                 player.points = 0;
                 player.maxHealth += 5;
                 player.health += 5;
+                player.level += 1;
                 gameLog('Kargunt has leveled up! Max health increased.')
                 let levelUp = new Audio('/sounds/levelup.mp3');
                 levelUp.play();
@@ -285,6 +289,15 @@
             if (item && item.name === "Rust-Serrated Longsword") {
                 let rustSword = our_game_data.items.Weapons["Rust-Serrated Longsword"];
                 player.weapon = { name: 'Rust-Serrated Longsword', roll: 'D4', modifier: 2 };
+                player.items.splice(index, 1); //Remove the item from the inventory
+                equipFX();
+                updateInventory();
+                updateStats();
+            }
+
+            if (item && item.name === "Fleshmail") {
+                let armor = our_game_data.items.Armor["Fleshmail"];
+                player.armor = 'D4';
                 player.items.splice(index, 1); //Remove the item from the inventory
                 equipFX();
                 updateInventory();
@@ -429,7 +442,6 @@
             console.log("Rolling d4...");
             roll = Math.floor(Math.random() * 4) + 1;
             console.log("Rolled a ", roll);
-            gameLog(`Rolled a ${roll}.`);
 
             return roll;
         }
@@ -439,20 +451,30 @@
             console.log("Rolling d6...");
             roll = Math.floor(Math.random() * 6) + 1;
             console.log("Rolled a ", roll);
-            gameLog(`Rolled a ${roll}.`);
 
             return roll;
         }
 
         //Selects enemy for usage in combat encounters
         function selectEnemy() {
-            const enemies = our_game_data.pools.enemies;
-            const randomIndex = Math.floor(Math.random() * enemies.length);
-            currentEnemy = enemies[randomIndex];
+            //Player encounters only enemies from weakEnemies pool below level 4.
+            //At level 4, they have a 67% chance to draw from the toughEnemies pool instead.
+            if (player.level < 3) {
+                const enemies = our_game_data.pools.weakEnemies;
+                const randomIndex = Math.floor(Math.random() * enemies.length);
+                currentEnemy = enemies[randomIndex];
+            } else if (rollD6() <= 2) {
+                const enemies = our_game_data.pools.weakEnemies;
+                const randomIndex = Math.floor(Math.random() * enemies.length);
+                currentEnemy = enemies[randomIndex];
+            } else {
+                const enemies = our_game_data.pools.toughEnemies;
+                const randomIndex = Math.floor(Math.random() * enemies.length);
+                currentEnemy = enemies[randomIndex];
+            }
 
             const enemyDesc = currentEnemy.description;
             const enemyName = currentEnemy.name;
-            currentEnemy.health = currentEnemy.health; //Ensure enemy has the right amount of health
 
             console.log("Facing Enemy:", currentEnemy.name);
             console.log("Starting Health:", currentEnemy.health);
@@ -469,11 +491,6 @@
             lootRoll = rollD6();
             switch (lootRoll) {
                 case 1:
-                    gameLog('Amniotic fluid seeps from the walls.');
-                    player.health += 3;
-                    gameLog('Kargunt recovers 3 HP.');
-                    healFX();
-                    updateStats();
                     break;
                 case 2:
                     player.items.push(rope);
@@ -503,14 +520,28 @@
         //The chosen event description dictates what the next state is.
         function generateRoom() {
             console.log("Generating Room...");
-            const roomsPool = our_game_data.pools.rooms;
-            const eventsPool = our_game_data.pools.events;
+            player.roomsVisited += 1;
+            roomsPool = our_game_data.pools.rooms;
+            eventsPool = our_game_data.pools.events;
 
-            const randomRoom = roomsPool[Math.floor(Math.random() * roomsPool.length)];
-            const randomEvent = eventsPool[Math.floor(Math.random() * eventsPool.length)];
+            randomRoom = roomsPool[Math.floor(Math.random() * roomsPool.length)];
+            randomEvent = eventsPool[Math.floor(Math.random() * eventsPool.length)];
 
-            const roomDescription = randomRoom.description;
-            const eventDescription = randomEvent.description;
+            roomDescription = randomRoom.description;
+            eventDescription = randomEvent.description;
+
+            //Guarantees visit to Merchant every 6 rooms
+            if (player.roomsVisited != 1 && player.roomsVisited % 6 === 0) {
+                eventsPool = our_game_data.pools.fixedEvents;
+                randomEvent = eventsPool[Math.floor(Math.random() * eventsPool.length)];
+                eventDescription = randomEvent.description;
+            }
+
+            if(randomEvent === "Story"){
+                const storyPool = our_game_data.pools.story;
+                const currentStory = storyPool[player.storyIndex];
+                eventDescription = currentStory.text;
+            }
 
             console.log("\nRoom is: ", randomRoom.name);
             console.log("\nEvent name: ", randomEvent.name);
@@ -533,7 +564,6 @@
                 text: "Proceed",
                 next_state: our_game_data['HandleEvent']['next_state'] // Transition based on the event type
             }]);
-            player.roomsVisited += 1;
             console.log('Player has visited ', player.roomsVisited, 'rooms.')
         }
 
@@ -577,8 +607,9 @@
             if (current_state === 'start') {
                 player.name = "Kargunt";
                 player.health = 15;
+                player.level = 1;
                 player.maxHealth = 15;
-                player.silver = 15;
+                player.silver = 50;
                 player.weapon = { name: 'Unarmed', roll: 'D4', modifier: -1 };
                 player.armor = null;
                 player.points = 0;
@@ -605,6 +636,11 @@
                 return;
             }
 
+            //Player encounters shop every 6 rooms
+            if (player.roomsVisited % 6 === 0) {
+
+            }
+
             if (current_state === 'buyPotion') {
                 let potion = our_game_data.items.Potion;
                 if (player.silver < 4) {
@@ -629,6 +665,7 @@
                     player.silver -= 5;
                     updateInventory();
                     updateStats();
+                    updateStats();
                     gameLog('Kargunt purchased a rope.');
                 }
             }
@@ -638,9 +675,12 @@
                     our_game_data[current_state]["text"] = "\"You seem to be lacking in coin, chasmwalker. Come back when you have more.\" the Carrion Merchant spits at you."
                 } else {
                     let rustSword = our_game_data.items.Weapons["Rust-Serrated Longsword"];
+                    player.silver -= 12;
                     player.items.push(rustSword);
                     buyFX();
                     updateInventory();
+                    updateStats();
+                    gameLog('Kargunt purchased a Rust-Serrated Longsword.');
                 }
 
             }
@@ -652,8 +692,11 @@
                 else {
                     let corpseCrusher = our_game_data.items.Weapons["Líkkrossari"];
                     player.items.push(corpseCrusher);
+                    player.silver -= 16;
                     buyFX();
                     updateInventory();
+                    updateStats();
+                    gameLog('Kargunt purchased a Líkkrossari.');
                 }
 
             }
@@ -664,13 +707,26 @@
                 } else {
                     let mightyZwei = our_game_data.items.Weapons["Mighty Zweihander"];
                     player.items.push(mightyZwei);
+                    player.silver -= 25;
                     buyFX();
                     updateInventory();
+                    updateStats();
+                    gameLog('Kargunt purchased a Mighty Zweihander.');
                 }
             }
 
-            if (current_state === 'Advance') {
-                roomLoot();
+            if (current_state == 'buyArmor') {
+                if (player.silver < 20) {
+                    our_game_data[current_state]["text"] = "\"You seem to be lacking in coin, chasmwalker. Come back when you have more.\" the Carrion Merchant spits at you."
+                } else {
+                    let armor = our_game_data.items.Armor["Fleshmail"];
+                    player.items.push(armor);
+                    player.silver -= 20;
+                    buyFX();
+                    updateInventory();
+                    updateStats();
+                    gameLog('Kargunt purchased Fleshmail.');
+                }
             }
 
             if (current_state === 'trapCheck') {
@@ -724,7 +780,7 @@
                 const riddlePool = our_game_data.pools.riddles;
                 const randomRiddle = riddlePool[Math.floor(Math.random() * riddlePool.length)];
                 const riddleText = randomRiddle.text;
-                typeText($('#my_text'), riddleText, textSpeed);
+                our_game_data[current_state]['text'] = riddleText;
             }
 
             if (current_state === 'riddleCheck') {
@@ -845,34 +901,39 @@
                 const enemyPoints = currentEnemy.points;
                 const fullDescription = `${enemyName} lies dead at your feet. Absorbed ${enemyPoints} points.`;
                 player.points = player.points + enemyPoints;
+                currentEnemy.health = currentEnemy.maxHealth //Reset enemy to maximum health for next time it is encountered
                 updateStats();
                 typeText($('#my_text'), fullDescription, textSpeed, function () { });
 
                 lootRoll = rollD6();
 
+                let getSilver = new Audio('/sounds/getmoney.mp3');
+
                 switch (lootRoll) {
                     case 1:
+                        healthRegain = rollD4()
                         gameLog('Kargunt takes a moment to rest.');
-                        player.health += 5;
-                        gameLog('Kargunt recovers 5 HP.');
+                        gameLog('Kargunt recovers', healthRegain, 'HP.');
                         healFX();
                         updateStats();
                         break;
                     case 2:
-                        player.items.push(potion);
-                        updateInventory();
-                        console.log('Gathered potion');
-                        gameLog('Kargunt finds a vial of mysterious fluid embedded in the floor.');
                         break;
                     case 3:
                         player.silver += 5;
-                        let getSilver = new Audio('/sounds/getmoney.mp3');
                         getSilver.play();
                         gameLog('Kargunt recovers 5 silver from the monster\'s corpse.');
                         break;
                     case 4:
+                        player.silver += 3;
+                        getSilver.play();
+                        gameLog('Kargunt recovers 3 silver from the monster\'s corpse.');
                         break;
                     case 5:
+                        const randSilver = rollD6();
+                        player.silver += randSilver;
+                        getSilver.play();
+                        gameLog('Kargunt recovers', randSilver, 'silver from the monster\'s corpse.');
                         break;
                     case 6:
                         break;
@@ -901,6 +962,13 @@
                     }
                     if (currentEnemy.attack == "D6") {
                         enemyDamage = rollD6();
+                    }
+                    if (player.armor != null){ //If player has armor equipped, reduce damage dealt by D4
+                        enemyDamage -= rollD4();
+                        if (enemyDamage < 0){
+                            enemyDamage = 0;
+                            gameLog("Kargunt's armor negates the attack!");
+                        }
                     }
                     player.health = player.health - enemyDamage - currentEnemy.modifier;
                     gameLog(currentEnemy.name, ' strikes Kargunt for ', enemyDamage + currentEnemy.modifier, ' damage.')
