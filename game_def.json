@@ -12,7 +12,7 @@
     },
     "intro": {
         "back_sound": "/sounds/bkground.mp3",
-        "text": "<h1>Wind billows from the tracheal caverns to the East. Rot rides it, and the stench of blood fills your nostrils.\nThe assault on your senses pulls you out of slumber. Your neurons flood with epinephrine. Panic.\nYou are not supposed to be here. This place is for the heretics, the doomsayers, the criminals and degenerates.\nYou must escape. Escape, before all is drowned in welcome silence.\nEscape, before your life is locked and failing within a...\n\n</h1>",
+        "text": "<h1>Wind billows from the tracheal caverns to the East. Rot rides it, and the stench of blood fills your nostrils. The assault on your senses pulls you out of slumber. Your neurons flood with epinephrine. Panic.\nYou are not supposed to be here. This place is for the heretics, the doomsayers, the criminals and degenerates.\nYou must escape. Escape, before all is drowned in welcome silence.\nEscape, before your life is locked and failing within a...\n\n</h1>",
         "ascii-art": " ▄████▄   ▒█████   ██▀███   ██▓███    ██████ ▓█████ \n▒██▀ ▀█  ▒██▒  ██▒▓██ ▒ ██▒▓██░  ██▒▒██    ▒ ▓█   ▀ \n▒▓█    ▄ ▒██░  ██▒▓██ ░▄█ ▒▓██░ ██▓▒░ ▓██▄   ▒███   \n▒▓▓▄ ▄██▒▒██   ██░▒██▀▀█▄  ▒██▄█▓▒ ▒  ▒   ██▒▒▓█  ▄ \n▒ ▓███▀ ░░ ████▓▒░░██▓ ▒██▒▒██▒ ░  ░▒██████▒▒░▒████▒\n░ ░▒ ▒  ░░ ▒░▒░▒░ ░ ▒▓ ░▒▓░▒▓▒░ ░  ░▒ ▒▓▒ ▒ ░░░ ▒░ ░\n  ░  ▒     ░ ▒ ▒░   ░▒ ░ ▒░░▒ ░     ░ ░▒  ░ ░ ░ ░  ░\n░        ░ ░ ░ ▒    ░░   ░ ░░       ░  ░  ░     ░   \n░ ░          ░ ░     ░                    ░     ░  ░\n░                                                   \n ▄████▄   ██░ ██  ▄▄▄        ██████  ███▄ ▄███▓     \n▒██▀ ▀█  ▓██░ ██▒▒████▄    ▒██    ▒ ▓██▒▀█▀ ██▒     \n▒▓█    ▄ ▒██▀▀██░▒██  ▀█▄  ░ ▓██▄   ▓██    ▓██░     \n▒▓▓▄ ▄██▒░▓█ ░██ ░██▄▄▄▄██   ▒   ██▒▒██    ▒██      \n▒ ▓███▀ ░░▓█▒░██▓ ▓█   ▓██▒▒██████▒▒▒██▒   ░██▒     \n░ ░▒ ▒  ░ ▒ ░░▒░▒ ▒▒   ▓▒█░▒ ▒▓▒ ▒ ░░ ▒░   ░  ░     \n  ░  ▒    ▒ ░▒░ ░  ▒   ▒▒ ░░ ░▒  ░ ░░  ░      ░     \n░         ░  ░░ ░  ░   ▒   ░  ░  ░  ░      ░        \n░ ░       ░  ░  ░      ░  ░      ░         ░        \n░                                                  \n",
         "next_state": [
             {
@@ -144,7 +144,7 @@
     },
     "shop": {
         "back_sound": "/sounds/shop.mp3",
-        "text": "The Carrion Merchant spreads its wares in front of you. There is a selection of yellow-tinged vials, sinew-woven ropes,\narmor carved of hardened flesh, a rusty sword, a bloodied Corpse Crusher, and a pristine Zweihander.",
+        "text": "The Carrion Merchant spreads its wares in front of you. There is a selection of yellow-tinged vials, sinew-woven ropes, armor carved of hardened flesh, a rusty sword, a bloodied Corpse Crusher, and a pristine Zweihander.",
         "next_state": [
             {
                 "type": "button",
@@ -178,7 +178,7 @@
         ]
     },
     "shopNoMusic": {
-        "text": "The Carrion Merchant spreads its wares in front of you. There is a selection of yellow-tinged vials, sinew-woven ropes,\narmor carved of hardened flesh, a rusty sword, a bloodied Corpse Crusher, and a pristine Zweihander.",
+        "text": "The Carrion Merchant spreads its wares in front of you. There is a selection of yellow-tinged vials, sinew-woven ropes, armor carved of hardened flesh, a rusty sword, a bloodied Corpse Crusher, and a pristine Zweihander.",
         "next_state": [
             {
                 "type": "button",
