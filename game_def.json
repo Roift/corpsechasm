@@ -669,7 +669,7 @@
             {
                 "name": "Flesh Troll",
                 "description": "A Flesh Goblin whose hunger has been sated. It has grown beyond its bounds, and now kills for pleasure rather than survival.",
-                "points": 2,
+                "points": 3,
                 "attack": "D6",
                 "modifier": 1,
                 "health": 30,

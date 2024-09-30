@@ -564,8 +564,11 @@
             typeText($('#my_text'), fullDescription, textSpeed);
 
             const bossMusic = '/sounds/bossmusic.mp3';
+            const battleMusic = '/sounds/confrontation.mp3'
             if (player.level === 5){
                 our_game_data['StartCombat']['back_sound'] = bossMusic;
+            } else {
+                our_game_data['StartCombat']['back_sound'] = battleMusic;
             }
 
             renderOptions([{
