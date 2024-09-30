@@ -197,7 +197,9 @@
             items: [],
             scrolls: [],
             storyIndex: 0,
-            roomsVisited: 0
+            roomsVisited: 0,
+            totalRoomsVisited: 0,
+            totalPoints: 0
         };
 
         let currentEnemy = {};
@@ -216,7 +218,7 @@
             $('#stats_content').html(statsContent);
 
             //When player visits 12 rooms they level up
-            if (player.roomsVisited >= 12) {
+            if (player.roomsVisited != 0 && player.roomsVisited % 12 === 0 && player.totalPoints >= 15) {
                 player.roomsVisited = 0;
                 player.maxHealth += 5;
                 player.health += 5;
@@ -521,6 +523,7 @@
         function generateRoom() {
             console.log("Generating Room...");
             player.roomsVisited += 1;
+            player.totalRoomsVisited += 1;
             roomsPool = our_game_data.pools.rooms;
             eventsPool = our_game_data.pools.events;
 
@@ -609,12 +612,14 @@
                 player.health = 15;
                 player.level = 1;
                 player.maxHealth = 15;
-                player.silver = 50;
+                player.silver = 15;
                 player.weapon = { name: 'Unarmed', roll: 'D4', modifier: -1 };
                 player.armor = null;
                 player.points = 0;
                 player.items = [];
                 player.roomsVisited = 0;
+                player.totalPoints = 0;
+                player.totalRoomsVisited = 0;
                 updateInventory();
             }
 
@@ -643,12 +648,12 @@
 
             if (current_state === 'buyPotion') {
                 let potion = our_game_data.items.Potion;
-                if (player.silver < 4) {
+                if (player.silver < 6) {
                     our_game_data[current_state]["text"] = "\"You seem to be lacking in coin, chasmwalker. Come back when you have more.\" the Carrion Merchant spits at you."
                 } else {
                     buyFX();
                     player.items.push(potion);
-                    player.silver -= 4;
+                    player.silver -= 6;
                     updateInventory();
                     updateStats();
                     gameLog('Kargunt purchased a potion.');
@@ -657,7 +662,7 @@
 
             if (current_state === 'buyRope') {
                 let rope = our_game_data.items.Rope;
-                if (player.silver < 4) {
+                if (player.silver < 5) {
                     our_game_data[current_state]["text"] = "\"You seem to be lacking in coin, chasmwalker. Come back when you have more.\" the Carrion Merchant spits at you."
                 } else {
                     buyFX();
@@ -671,11 +676,11 @@
             }
 
             if (current_state == 'buySword') {
-                if (player.silver < 12) {
+                if (player.silver < 18) {
                     our_game_data[current_state]["text"] = "\"You seem to be lacking in coin, chasmwalker. Come back when you have more.\" the Carrion Merchant spits at you."
                 } else {
                     let rustSword = our_game_data.items.Weapons["Rust-Serrated Longsword"];
-                    player.silver -= 12;
+                    player.silver -= 18;
                     player.items.push(rustSword);
                     buyFX();
                     updateInventory();
@@ -686,13 +691,13 @@
             }
 
             if (current_state == 'buyMace') {
-                if (player.silver < 16) {
+                if (player.silver < 27) {
                     our_game_data[current_state]["text"] = "\"You seem to be lacking in coin, chasmwalker. Come back when you have more.\" the Carrion Merchant spits at you."
                 }
                 else {
                     let corpseCrusher = our_game_data.items.Weapons["Líkkrossari"];
                     player.items.push(corpseCrusher);
-                    player.silver -= 16;
+                    player.silver -= 27;
                     buyFX();
                     updateInventory();
                     updateStats();
@@ -702,12 +707,12 @@
             }
 
             if (current_state == 'buyZwei') {
-                if (player.silver < 25) {
+                if (player.silver < 40) {
                     our_game_data[current_state]["text"] = "\"You seem to be lacking in coin, chasmwalker. Come back when you have more.\" the Carrion Merchant spits at you."
                 } else {
                     let mightyZwei = our_game_data.items.Weapons["Mighty Zweihander"];
                     player.items.push(mightyZwei);
-                    player.silver -= 25;
+                    player.silver -= 40;
                     buyFX();
                     updateInventory();
                     updateStats();
@@ -887,11 +892,13 @@
                     text: "ATTACK",
                     next_state: 'AttackEnemy'
                 }]);
-                renderOptions(options);  // Show buttons for Attack or Flee
+                renderOptions(options); 
             }
 
             if (current_state === 'GameOver') {
-                gameLog('Kargunt has been consumed by the CORPSE CHASM.')
+                updateStats();
+                gameLog('Kargunt has been consumed by the CORPSE CHASM.');
+                gameLog('Explored ', player.totalRoomsVisited, 'rooms and accumulated', player.totalPoints, 'points.');
             }
 
             if (current_state === 'Victory') {
@@ -900,7 +907,8 @@
                 const enemyName = currentEnemy.name;
                 const enemyPoints = currentEnemy.points;
                 const fullDescription = `${enemyName} lies dead at your feet. Absorbed ${enemyPoints} points.`;
-                player.points = player.points + enemyPoints;
+                player.points += enemyPoints;
+                player.totalPoints += enemyPoints;
                 currentEnemy.health = currentEnemy.maxHealth //Reset enemy to maximum health for next time it is encountered
                 updateStats();
                 typeText($('#my_text'), fullDescription, textSpeed, function () { });

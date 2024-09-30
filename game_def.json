@@ -160,7 +160,7 @@
         "next_state": [
             {
                 "type": "button",
-                "text": "Potion (heal D6) | 4s",
+                "text": "Potion (heal D6) | 6s",
                 "next_state": "buyPotion"
             },
             {
@@ -168,19 +168,19 @@
                 "next_state": "buyRope"
             },
             {
-                "text": "Fleshmail (-D4) | 10s",
+                "text": "Fleshmail (-D4) | 20s",
                 "next_state": "buyArmor"
             },
             {
-                "text": "Rust-Serrated Longsword (D6) | 12s",
+                "text": "Rust-Serrated Longsword (D6) | 18s",
                 "next_state": "buySword"
             },
             {
-                "text": "Líkkrossari (D6+1) | 16s",
+                "text": "Líkkrossari (D6+1) | 27s",
                 "next_state": "buyMace"
             },
             {
-                "text": "Mighty Zweihander (D6+2) | 25s",
+                "text": "Mighty Zweihander (D6+2) | 40s",
                 "next_state": "buyZwei"
             },
             {
