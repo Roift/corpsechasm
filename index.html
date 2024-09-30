@@ -217,19 +217,6 @@
             <strong>Points:</strong> ${player.points}<br>`;
             $('#stats_content').html(statsContent);
 
-            //When player visits 12 rooms they level up
-            if (player.roomsVisited != 0 && player.roomsVisited % 12 === 0 && player.totalPoints >= 15) {
-                player.roomsVisited = 0;
-                player.maxHealth += 5;
-                player.health += 5;
-                player.level += 1;
-                gameLog('Kargunt has leveled up! Max health increased.')
-                let levelUp = new Audio('/sounds/levelup.mp3');
-                levelUp.play();
-                flashScreen('yellow');
-                updateStats();
-            }
-
             //When player gathers 15 points they level up
             if (player.points >= 15) {
                 player.points = 0;
@@ -493,19 +480,20 @@
             lootRoll = rollD6();
             switch (lootRoll) {
                 case 1:
-                    break;
-                case 2:
-                    player.items.push(rope);
-                    updateInventory();
-                    console.log('Gathered rope');
-                    gameLog('Kargunt finds a severed, thick, rope-like artery on the ground.');
-                    updateStats();
-                    break;
-                case 3:
                     player.items.push(potion);
                     updateInventory();
                     console.log('Gathered potion');
                     gameLog('Kargunt finds a vial of mysterious fluid embedded in the floor.');
+                    break;
+                case 2:
+                    getSilver = rollD6();
+                    let getSilver = new Audio('/sounds/getmoney.mp3');
+                    getSilver.play();
+                    player.silver += getSilver;
+                    gameLog('Kargunt picks up', getSilver, 'teeth off the floor.');
+                    updateStats;
+                    break;
+                case 3:
                     break;
                 case 4:
                     break;
@@ -540,7 +528,11 @@
                 eventDescription = randomEvent.description;
             }
 
-            if(randomEvent === "Story"){
+            if(randomEvent.name === 'Nothing'){
+                roomLoot();
+            }
+
+            if (randomEvent === "Story") {
                 const storyPool = our_game_data.pools.story;
                 const currentStory = storyPool[player.storyIndex];
                 eventDescription = currentStory.text;
@@ -836,9 +828,9 @@
             }
 
             if (current_state === 'vitality') {
-                player.health += 5;
+                player.health = player.maxHealth;
                 healFX();
-                gameLog('Kargunt recovers 5 HP.');
+                gameLog('Kargunt fully recovers.');
                 updateStats();
             }
 
@@ -853,7 +845,7 @@
 
             if (current_state === 'power') {
                 player.points += 3;
-                gameLog('Kargunt absorbs 3 points.');
+                gameLog('Kargunt absorbs 4 points.');
                 updateStats();
             }
 
@@ -892,7 +884,7 @@
                     text: "ATTACK",
                     next_state: 'AttackEnemy'
                 }]);
-                renderOptions(options); 
+                renderOptions(options);
             }
 
             if (current_state === 'GameOver') {
@@ -905,7 +897,7 @@
                 let potion = our_game_data.items.Potion;
                 gameLog('Kargunt has slain ', currentEnemy.name, "!");
                 const enemyName = currentEnemy.name;
-                const enemyPoints = currentEnemy.points;
+                const enemyPoints = currentEnemy.points + 1;
                 const fullDescription = `${enemyName} lies dead at your feet. Absorbed ${enemyPoints} points.`;
                 player.points += enemyPoints;
                 player.totalPoints += enemyPoints;
@@ -971,9 +963,9 @@
                     if (currentEnemy.attack == "D6") {
                         enemyDamage = rollD6();
                     }
-                    if (player.armor != null){ //If player has armor equipped, reduce damage dealt by D4
+                    if (player.armor != null) { //If player has armor equipped, reduce damage dealt by D4
                         enemyDamage -= rollD4();
-                        if (enemyDamage < 0){
+                        if (enemyDamage < 0) {
                             enemyDamage = 0;
                             gameLog("Kargunt's armor negates the attack!");
                         }
