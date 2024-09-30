@@ -92,6 +92,28 @@
             "input": "Y"
         }
     },
+    "EndGame":
+    {
+        "back_sound": "/sounds/endgame.mp3",
+        "text": "With the Corpse Basilisk slain, the Corpse Chasm has deemed you more trouble than you are worth.\nIts flesh parts before you, revealing a path to glorious daylight.",
+        "next_state": {
+            "type": "button",
+            "text": "Exit the Corpse Chasm",
+            "next_state": "EndGame2",
+            "input": "Y"
+        }
+    },
+    "EndGame2":
+    {
+        "text": "You exit the Corpse Chasm, emerging onto the back of the ginormous creature.\nIts torso stretches for miles, snakelike and many-legged.\nAs you gaze off in the direction of its head, you find the world's worst fear realized.\n\nIt has found Heaven.\n\nThe Corpse Chasm's head reaches into the clouds, where it has begun to feast.\nThe blood of Angels oozes from the Holy Realm, dripping from the beast's cavernous maw.\n\n",
+        "ascii-art": "▓██   ██▓ ▒█████   █    ██    ▓█████   ██████  ▄████▄   ▄▄▄       ██▓███  ▓█████ ▓█████▄ \n ▒██  ██▒▒██▒  ██▒ ██  ▓██▒   ▓█   ▀ ▒██    ▒ ▒██▀ ▀█  ▒████▄    ▓██░  ██▒▓█   ▀ ▒██▀ ██▌\n  ▒██ ██░▒██░  ██▒▓██  ▒██░   ▒███   ░ ▓██▄   ▒▓█    ▄ ▒██  ▀█▄  ▓██░ ██▓▒▒███   ░██   █▌\n  ░ ▐██▓░▒██   ██░▓▓█  ░██░   ▒▓█  ▄   ▒   ██▒▒▓▓▄ ▄██▒░██▄▄▄▄██ ▒██▄█▓▒ ▒▒▓█  ▄ ░▓█▄   ▌\n  ░ ██▒▓░░ ████▓▒░▒▒█████▓    ░▒████▒▒██████▒▒▒ ▓███▀ ░ ▓█   ▓██▒▒██▒ ░  ░░▒████▒░▒████▓ \n   ██▒▒▒ ░ ▒░▒░▒░ ░▒▓▒ ▒ ▒    ░░ ▒░ ░▒ ▒▓▒ ▒ ░░ ░▒ ▒  ░ ▒▒   ▓▒█░▒▓▒░ ░  ░░░ ▒░ ░ ▒▒▓  ▒ \n ▓██ ░▒░   ░ ▒ ▒░ ░░▒░ ░ ░     ░ ░  ░░ ░▒  ░ ░  ░  ▒     ▒   ▒▒ ░░▒ ░      ░ ░  ░ ░ ▒  ▒ \n ▒ ▒ ░░  ░ ░ ░ ▒   ░░░ ░ ░       ░   ░  ░  ░  ░          ░   ▒   ░░          ░    ░ ░  ░ \n ░ ░         ░ ░     ░           ░  ░      ░  ░ ░            ░  ░            ░  ░   ░    \n ░ ░                                          ░                                   ░      ",
+        "next_state": {
+            "type": "button",
+            "text": "Play Again",
+            "next_state": "start",
+            "input": "Y"
+        }
+    },
     "HandleEvent": {
         "text": "",
         "next_state": [
@@ -164,7 +186,7 @@
                 "next_state": "buyPotion"
             },
             {
-                "text": "Rope (+1 Trap Roll) | 5s",
+                "text": "Rope (+1 Trap Roll) | 2s",
                 "next_state": "buyRope"
             },
             {
@@ -645,13 +667,24 @@
                 "maxHealth": 20
             },
             {
+                "name": "Flesh Troll",
+                "description": "A Flesh Goblin whose hunger has been sated. It has grown beyond its bounds, and now kills for pleasure rather than survival.",
+                "points": 2,
+                "attack": "D6",
+                "modifier": 1,
+                "health": 30,
+                "maxHealth": 30
+            }
+        ],
+        "bossEnemies": [
+            {
                 "name": "Corpse Basilisk",
                 "description": "The Chasm itself yearns for your end. You face all who have been consumed.",
                 "points": 2,
                 "attack": "D6",
-                "modifier": 2,
-                "health": 40,
-                "maxHealth": 40
+                "modifier": 4,
+                "health": 50,
+                "maxHealth": 50
             }
         ],
         "riddles": [

@@ -456,6 +456,10 @@
                 const enemies = our_game_data.pools.weakEnemies;
                 const randomIndex = Math.floor(Math.random() * enemies.length);
                 currentEnemy = enemies[randomIndex];
+            } else if (player.level === 5) {
+                const enemies = our_game_data.pools.bossEnemies;
+                const randomIndex = Math.floor(Math.random() * enemies.length);
+                currentEnemy = enemies[randomIndex];
             } else if (rollD6() <= 4) {
                 const enemies = our_game_data.pools.weakEnemies;
                 const randomIndex = Math.floor(Math.random() * enemies.length);
@@ -532,7 +536,7 @@
                 eventDescription = randomEvent.description;
             }
 
-            if(randomEvent.name === 'Nothing'){
+            if (randomEvent.name === 'Nothing') {
                 roomLoot();
             }
 
@@ -558,6 +562,11 @@
             // Update the text to display the room and event
             const fullDescription = `You enter ${roomDescription}\n\n${eventDescription}`;
             typeText($('#my_text'), fullDescription, textSpeed);
+
+            const bossMusic = '/sounds/bossmusic.mp3';
+            if (player.level === 5){
+                our_game_data['StartCombat']['back_sound'] = bossMusic;
+            }
 
             renderOptions([{
                 text: "Proceed",
@@ -611,7 +620,7 @@
                 player.silver = 5;
                 player.weapon = { name: 'Unarmed', roll: 'D4', modifier: -1 };
                 player.armor = null;
-                player.points = 0;
+                player.points = 14;
                 player.items = [];
                 player.roomsVisited = 0;
                 player.totalPoints = 0;
@@ -730,8 +739,8 @@
                 }
             }
 
-            if (current_state === 'fountain'){
-                healAmount =  rollD6() + 4;
+            if (current_state === 'fountain') {
+                healAmount = rollD6() + 4;
                 healFX();
                 player.health += healAmount;
                 gameLog('Kargunt recovers', healAmount, 'health from the fountain.')
@@ -861,10 +870,10 @@
             }
 
             if (current_state === 'StartCombat') {
+                selectEnemy();
                 console.log("About to handle combat!");
                 gameLog('Kargunt engages combat!');
                 let options = our_game_data[current_state]['next_state'];
-                selectEnemy();
                 renderOptions(options);
                 return; // Ensure we don't execute the rest of the function in combat state
             }
@@ -929,7 +938,7 @@
                         updateStats();
                         break;
                     case 2:
-                    randSilver = rollD6() + 3;
+                        randSilver = rollD6() + 3;
                         player.silver += randSilver;
                         getSilver.play();
                         gameLog('Kargunt recovers', randSilver, 'silver from the monster\'s corpse.');
@@ -957,22 +966,46 @@
                         updateStats();
                         break;
                     case 6:
-                    player.items.push(potion);
-                    updateInventory();
-                    console.log('Gathered potion');
-                    gameLog('Kargunt gathers the creatures fluids to create a potion.');
-                    break;
+                        player.items.push(potion);
+                        updateInventory();
+                        console.log('Gathered potion');
+                        gameLog('Kargunt gathers the creatures fluids to create a potion.');
+                        break;
                         break;
                     default:
                         console.log("No case matched");
                 }
 
-                renderOptions([{
-                    text: "Proceed",
-                    next_state: 'postCombatAdvance'
-                }]);
+                if (currentEnemy.name != 'Corpse Basilisk') {
+                    renderOptions([{
+                        text: "Proceed",
+                        next_state: 'postCombatAdvance'
+                    }]);
+                } else{
+                    renderOptions([{
+                        text: "Proceed",
+                        next_state: 'EndGame'
+                    }]);
+                }
+
 
                 return;
+            }
+
+            if (current_state === 'EndGame'){
+                renderOptions([{
+                        text: "Exit the Chasm",
+                        next_state: 'EndGame2'
+                    }]);
+            }
+
+            if (current_state === 'EndGame2'){
+                gameLog('Kargunt has escaped the CORPSE CHASM.')
+                gameLog('Explored ', player.totalRoomsVisited, 'rooms and accumulated', player.totalPoints, 'points this run.');
+                renderOptions([{
+                        text: "Play Again",
+                        next_state: 'start'
+                    }]);
             }
 
             if (current_state === 'AttackEnemy') {
