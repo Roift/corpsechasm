@@ -617,7 +617,7 @@
                 "description": "Its tall and gaunt figure is wet with pink flesh and a malnourished humanoid frame.\nIts head is a poor facsimile of a raven, and iron blades extend from its wrists to its elbows.",
                 "points": 3,
                 "attack": "D6",
-                "modifier": 3,
+                "modifier": 1,
                 "health": 16,
                 "maxHealth": 16
             },
@@ -644,7 +644,7 @@
                 "description": "The Chasm itself yearns for your end. You face all who have been consumed.",
                 "points": 2,
                 "attack": "D6",
-                "modifier": 4,
+                "modifier": 2,
                 "health": 40,
                 "maxHealth": 40
             }
