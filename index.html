@@ -239,10 +239,10 @@
             player.maxHealth += 5;
             player.health += 5;
             player.level += 1;
+            flashScreen('yellow');
             gameLog('Kargunt has leveled up! Max health increased.')
             let levelUp = new Audio('/sounds/levelup.mp3');
             levelUp.play();
-            flashScreen('yellow');
             updateStats();
         }
 
@@ -953,6 +953,7 @@
                     healthRegain = rollD6()
                     gameLog('Kargunt takes a moment to rest.');
                     gameLog('Kargunt recovers', healthRegain, 'HP.');
+                    player.health += healthRegain;
                     healFX();
                     updateStats();
                     break;
