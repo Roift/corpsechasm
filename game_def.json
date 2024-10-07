@@ -63,7 +63,7 @@
         ]
     },
     "Advance": {
-        "text": "You survey the fleshy chamber. There are three passageways.\nA narrow crawlspace ahead of you, a wide but dark opening to your left, \nand an illuminated, windy corridor to the right.\nWhich passage sings to you?",
+        "text": "You survey the fleshy chamber. The chasm's innards open up into three passageways. Which direction do you proceed?",
         "next_state": [
             {
                 "type": "button",
