@@ -195,7 +195,6 @@
 
 <script>
     var current_state = 'start';
-    var lastEvent = 'none';
     var our_game_data = null;
     var bk_audio = new Audio();
     let typingInterval;
@@ -546,20 +545,9 @@
         roomDescription = randomRoom.description;
         eventDescription = randomEvent.description;
 
-        if (lastEvent == randomEvent){
-            generateRoom();
-        }
-
         //Guarantees visit to Merchant every 6 rooms
         if (player.roomsVisited != 1 && player.roomsVisited % 6 === 0) {
             eventsPool = our_game_data.pools.fixedEvents;
-            randomEvent = eventsPool[Math.floor(Math.random() * eventsPool.length)];
-            eventDescription = randomEvent.description;
-        }
-
-        //Guarantees visit to fountain every 10 rooms
-        if (player.roomsVisited != 1 && player.roomsVisited % 10 === 0) {
-            eventsPool = our_game_data.pools.healFountain;
             randomEvent = eventsPool[Math.floor(Math.random() * eventsPool.length)];
             eventDescription = randomEvent.description;
         }
@@ -604,8 +592,6 @@
             next_state: our_game_data['HandleEvent']['next_state'] // Transition based on the event type
         }]);
         console.log('Player has visited ', player.roomsVisited, 'rooms.')
-
-        lastEvent = randomEvent;
     }
 
     function visit_state(state) {

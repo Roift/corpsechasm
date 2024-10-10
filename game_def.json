@@ -586,6 +586,11 @@
                 "name": "Monster3",
                 "description": "A creature emerges from the shadows. Its stench overwhelms your senses.",
                 "type": "StartCombat"
+            },
+            {
+                "name": "Amniotic Fountain",
+                "description": "In the center of the room a yellow-tinged fountain gushes with amniotic fluid.",
+                "type": "fountain"
             }
         ],
         "fixedEvents": [
@@ -593,13 +598,6 @@
                 "name": "Merchant",
                 "description": "You notice and follow the telltale scent of a Carrion Merchant.\nDraped in ragged furs and poorly tanned leather, they sift through decaying remains,\npulling out bone and innards with a practiced hand.\n\n\"Care to trade?\" they rasp, their voice like grinding bones. \"Fresh from the dead.\"",
                 "type": "shop"
-            }
-        ],
-        "healFountain": [
-            {
-                "name": "Amniotic Fountain",
-                "description": "In the center of the room a yellow-tinged fountain gushes with amniotic fluid.",
-                "type": "fountain"
             }
         ],
         "weakEnemies": [
